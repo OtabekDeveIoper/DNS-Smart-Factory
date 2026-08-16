@@ -2,7 +2,7 @@ import {
   ProcessStatus,
   Result,
   type PrismaClient,
-} from "../../generated/prisma/client";
+} from "../../generated/prisma/client.cjs";
 
 function addHours(date: Date, hours: number) {
   return new Date(date.getTime() + hours * 60 * 60 * 1000);
@@ -28,13 +28,9 @@ export async function seedQuality(prisma: PrismaClient) {
       (record) => record.processStep.code === "TESTING",
     );
 
-    if (
-      wiringRecord &&
-      wiringRecord.status !== ProcessStatus.PENDING
-    ) {
+    if (wiringRecord && wiringRecord.status !== ProcessStatus.PENDING) {
       const hasDefect =
-        unit.order.orderNo === "DN-2607-014" &&
-        unit.unitNumber === 2;
+        unit.order.orderNo === "DN-2607-014" && unit.unitNumber === 2;
 
       const inspectionData = {
         processRecordId: wiringRecord.id,
@@ -75,13 +71,9 @@ export async function seedQuality(prisma: PrismaClient) {
       }
     }
 
-    if (
-      testingRecord &&
-      testingRecord.status !== ProcessStatus.PENDING
-    ) {
+    if (testingRecord && testingRecord.status !== ProcessStatus.PENDING) {
       const hasSequenceFailure =
-        unit.order.orderNo === "DN-2606-096" &&
-        unit.unitNumber === 2;
+        unit.order.orderNo === "DN-2606-096" && unit.unitNumber === 2;
 
       const testedAt =
         testingRecord.completedAt ??
@@ -115,8 +107,7 @@ export async function seedQuality(prisma: PrismaClient) {
       ];
 
       for (const test of tests) {
-        const certificateNo =
-          `${unit.serialNo}-${test.testType}`;
+        const certificateNo = `${unit.serialNo}-${test.testType}`;
 
         await prisma.testRecord.upsert({
           where: { certificateNo },

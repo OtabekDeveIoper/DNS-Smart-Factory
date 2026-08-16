@@ -3,7 +3,7 @@ import {
   Severity,
   type Prisma,
   type PrismaClient,
-} from "../../generated/prisma/client";
+} from "../../generated/prisma/client.cjs";
 
 const materialProcessMap: Record<string, string> = {
   "STEEL-1.6T": "SHEET_METAL",
@@ -66,8 +66,7 @@ export async function seedTraceability(prisma: PrismaClient) {
   for (const order of orders) {
     for (const unit of order.units) {
       for (const bomItem of order.bomItems) {
-        const processCode =
-          materialProcessMap[bomItem.material.code];
+        const processCode = materialProcessMap[bomItem.material.code];
 
         if (!processCode) continue;
 
@@ -84,14 +83,10 @@ export async function seedTraceability(prisma: PrismaClient) {
 
         if (!processReached) continue;
 
-        const inventoryLot = lotByMaterialId.get(
-          bomItem.materialId,
-        );
+        const inventoryLot = lotByMaterialId.get(bomItem.materialId);
 
         if (!inventoryLot) {
-          throw new Error(
-            `Inventory lot not found: ${bomItem.material.code}`,
-          );
+          throw new Error(`Inventory lot not found: ${bomItem.material.code}`);
         }
 
         const usageData = {
@@ -101,9 +96,7 @@ export async function seedTraceability(prisma: PrismaClient) {
           processRecordId: processRecord.id,
           quantity: bomItem.quantityPerUnit,
           consumedAt:
-            processRecord.completedAt ??
-            processRecord.startedAt ??
-            new Date(),
+            processRecord.completedAt ?? processRecord.startedAt ?? new Date(),
           operatorName: processRecord.operatorName,
           notes: `Seeded usage for ${bomItem.material.code}`,
         };
@@ -140,18 +133,11 @@ export async function seedTraceability(prisma: PrismaClient) {
     return order;
   };
 
-  const findUnit = (
-    order: (typeof orders)[number],
-    unitNumber: number,
-  ) => {
-    const unit = order.units.find(
-      (item) => item.unitNumber === unitNumber,
-    );
+  const findUnit = (order: (typeof orders)[number], unitNumber: number) => {
+    const unit = order.units.find((item) => item.unitNumber === unitNumber);
 
     if (!unit) {
-      throw new Error(
-        `Unit ${unitNumber} not found in ${order.orderNo}`,
-      );
+      throw new Error(`Unit ${unitNumber} not found in ${order.orderNo}`);
     }
 
     return unit;

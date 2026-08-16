@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "../generated/prisma/client";
+import { PrismaClient } from "../generated/prisma/client.cjs";
 import { seedMasterData } from "./seeds/master-data.seed";
 import { seedOrders } from "./seeds/orders.seed";
 import { seedOperations } from "./seeds/operations.seed";

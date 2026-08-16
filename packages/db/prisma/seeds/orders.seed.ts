@@ -2,7 +2,7 @@ import {
   OrderStatus,
   UnitStatus,
   type PrismaClient,
-} from "../../generated/prisma/client";
+} from "../../generated/prisma/client.cjs";
 
 const orderNumbers = [
   "DN-2607-011",

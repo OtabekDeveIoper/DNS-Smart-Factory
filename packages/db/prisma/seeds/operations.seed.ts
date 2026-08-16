@@ -2,7 +2,7 @@ import {
   OrderStatus,
   ProcessStatus,
   type PrismaClient,
-} from "../../generated/prisma/client";
+} from "../../generated/prisma/client.cjs";
 
 const baseBom = [
   { materialCode: "MCCB-100A", quantity: 2 },
