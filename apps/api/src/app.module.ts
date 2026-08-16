@@ -9,6 +9,7 @@ import { LoggingInterceptor } from './libs/interceptors/Logging.interceptor';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { InspectionsModule } from './modules/inspections/inspections.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { InspectionsModule } from './modules/inspections/inspections.module';
     DashboardModule,
     OrdersModule,
     InspectionsModule,
+    InventoryModule,
   ],
   controllers: [AppController],
   providers: [
