@@ -64,6 +64,7 @@ export async function seedOperations(prisma: PrismaClient) {
     materials.map((material) => [material.code, material]),
   );
 
+  const now = new Date();
   for (const order of orders) {
     const productFactor = getProductFactor(order.productName);
 
@@ -100,15 +101,44 @@ export async function seedOperations(prisma: PrismaClient) {
       order.status,
     );
 
+    const completedHours = processSteps
+      .filter((step) => step.sequence <= completedStepCount)
+      .reduce((total, step) => total + Number(step.standardHours), 0);
+
+    const totalStandardHours = processSteps.reduce(
+      (total, step) => total + Number(step.standardHours),
+      0,
+    );
+
     for (const unit of order.units) {
+      const plannedProcessStart = order.plannedStartAt ?? order.orderDate;
+
+      let actualProcessStart: Date | null = null;
+
+      if (order.status === OrderStatus.COMPLETED && order.completedAt) {
+        actualProcessStart = addHours(order.completedAt, -totalStandardHours);
+      } else if (
+        order.status === OrderStatus.IN_PRODUCTION ||
+        order.status === OrderStatus.ON_HOLD
+      ) {
+        const currentStepStartedAt = addHours(now, -(unit.unitNumber + 1));
+
+        actualProcessStart = addHours(currentStepStartedAt, -completedHours);
+      }
+
       let elapsedHours = 0;
-      const processStart = order.plannedStartAt ?? order.orderDate;
 
       for (const step of processSteps) {
-        const plannedStart = addHours(processStart, elapsedHours);
         const standardHours = Number(step.standardHours);
 
+        const plannedStart = addHours(plannedProcessStart, elapsedHours);
+
+        const actualStartedAt = actualProcessStart
+          ? addHours(actualProcessStart, elapsedHours)
+          : null;
+
         const isCompleted = step.sequence <= completedStepCount;
+
         const isCurrent =
           step.sequence === completedStepCount + 1 &&
           order.status !== OrderStatus.PLANNED &&
@@ -134,10 +164,11 @@ export async function seedOperations(prisma: PrismaClient) {
           status,
           equipmentCode: equipmentByStep[step.code],
           plannedStart,
-          startedAt: isCompleted || isCurrent ? plannedStart : null,
-          completedAt: isCompleted
-            ? addHours(plannedStart, standardHours)
-            : null,
+          startedAt: isCompleted || isCurrent ? actualStartedAt : null,
+          completedAt:
+            isCompleted && actualStartedAt
+              ? addHours(actualStartedAt, standardHours)
+              : null,
           operatorName:
             isCompleted || isCurrent ? `Operator-${step.sequence}` : null,
           goodQty: isCompleted ? 1 : 0,

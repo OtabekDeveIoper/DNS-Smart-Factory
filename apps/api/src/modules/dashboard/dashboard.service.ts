@@ -74,24 +74,29 @@ export class DashboardService {
       }),
 
       this.prisma.$queryRaw<UtilizationRow[]>`
-        SELECT
-          LEAST(
-            100.0,
-            COALESCE(
-              SUM(
+        WITH equipment_load AS (
+            SELECT
+            "equipmentCode",
+            LEAST(
+                SUM(
                 EXTRACT(EPOCH FROM ("completedAt" - "startedAt")) / 60
-              ) / NULLIF(
-                COUNT(DISTINCT "equipmentCode") * 480.0 * 7,
-                0
-              ) * 100,
-              0     
-            )
-          )::double precision AS "utilization"
-        FROM "ProcessRecord"
-        WHERE "startedAt" >= ${sevenDaysAgo}
-          AND "completedAt" IS NOT NULL
-          AND "equipmentCode" IS NOT NULL
-      `,
+                ),
+                480.0 * 7
+            ) AS "busyMinutes"
+            FROM "ProcessRecord"
+            WHERE "startedAt" >= ${sevenDaysAgo}
+            AND "completedAt" IS NOT NULL
+            AND "equipmentCode" IS NOT NULL
+            GROUP BY "equipmentCode"
+        )
+        SELECT
+            COALESCE(
+            SUM("busyMinutes") /
+            NULLIF(COUNT(*) * 480.0 * 7, 0) * 100,
+            0
+            )::double precision AS "utilization"
+        FROM equipment_load
+        `,
     ]);
 
     const onTimeOrders = completedOrders.filter((order) => {
@@ -102,7 +107,6 @@ export class DashboardService {
 
       return order.completedAt < endOfDueDate;
     }).length;
-    console.log(onTimeOrders);
 
     const onTimeDeliveryRate =
       completedOrders.length === 0

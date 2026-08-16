@@ -19,7 +19,12 @@ const orderNumbers = [
 
 const products = ["MCC Panel", "ATS Panel", "Distribution Board"];
 const quantities = [2, 3, 3, 2, 4, 1, 3, 2, 2, 4];
-const dueOffsets = [-8, -2, 2, 4, 6, 8, 10, 12, 5, 18];
+const dueOffsets = [2, 4, 6, -7, 14, -3, 10, 12, 5, 18];
+
+const completionOffsets: Record<string, number> = {
+  "DN-2606-096": 1, // bir kun kech
+  "DN-2606-088": -1, // bir kun oldin
+};
 
 function addDays(date: Date, days: number) {
   const result = new Date(date);
@@ -72,7 +77,7 @@ export async function seedOrders(prisma: PrismaClient) {
 
     const completedAt =
       status === OrderStatus.COMPLETED
-        ? addDays(dueDate, index === 0 ? -1 : 1)
+        ? addDays(dueDate, completionOffsets[orderNumbers[index]] ?? 0)
         : null;
 
     const order = await prisma.order.upsert({

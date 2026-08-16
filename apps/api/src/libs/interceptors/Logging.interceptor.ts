@@ -39,9 +39,7 @@ export class LoggingInterceptor implements NestInterceptor {
         error: (error: unknown) => {
           const duration = Date.now() - startedAt;
           const statusCode =
-            error instanceof HttpException
-              ? error.getStatus()
-              : 500;
+            error instanceof HttpException ? error.getStatus() : 500;
 
           this.logger.error(
             `${method} ${path} - ERROR ${statusCode} (${duration}ms)`,
