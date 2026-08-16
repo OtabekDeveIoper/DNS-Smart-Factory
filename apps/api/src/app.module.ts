@@ -10,6 +10,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { InspectionsModule } from './modules/inspections/inspections.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
+import { QualityModule } from './modules/quality/quality.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { InventoryModule } from './modules/inventory/inventory.module';
     OrdersModule,
     InspectionsModule,
     InventoryModule,
+    QualityModule,
   ],
   controllers: [AppController],
   providers: [
