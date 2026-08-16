@@ -1,0 +1,61 @@
+model Customer {
+  id          String   @id @default(uuid()) @db.Uuid
+  code        String   @unique
+  name        String
+  contactName String?
+  phone       String?
+  email       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt()
+
+  orders Order[]
+}
+
+model Order {
+  id             String      @id @default(uuid()) @db.Uuid
+  orderNo        String      @unique
+  customerId     String      @db.Uuid
+  productName    String
+  modelName      String?
+  quantity       Int
+  status         OrderStatus @default(PLANNED)
+  orderDate      DateTime    @db.Date
+  plannedStartAt DateTime?
+  dueDate        DateTime    @db.Date
+  completedAt    DateTime?
+  bufferDays     Int         @default(1)
+  notes          String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  customer      Customer        @relation(fields: [customerId], references: [id])
+  units         Unit[]
+  bomItems      BomItem[]
+  materialUsage MaterialUsage[]
+  events        Event[]
+
+  @@index([status, dueDate])
+  @@index([customerId])
+}
+
+model Unit {
+  id          String     @id @default(uuid()) @db.Uuid
+  orderId     String     @db.Uuid
+  serialNo    String     @unique
+  unitNumber  Int
+  status      UnitStatus @default(WAITING)
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  order          Order           @relation(fields: [orderId], references: [id])
+  processRecords ProcessRecord[]
+  materialUsage  MaterialUsage[]
+  inspections    Inspection[]
+  testRecords    TestRecord[]
+  events         Event[]
+
+  @@unique([orderId, unitNumber])
+  @@index([orderId, status])
+}

@@ -1,0 +1,44 @@
+model Inspection {
+  id              String   @id @default(uuid()) @db.Uuid
+  unitId          String   @db.Uuid
+  processRecordId String?  @db.Uuid
+  inspectionType  String
+  result          Result
+  cameraCode      String?
+  defectType      String?
+  defectLocation  String?
+  confidence      Decimal? @db.Decimal(5, 2)
+  imageUrl        String?
+  inspectorName   String?
+  inspectedAt     DateTime @default(now())
+  notes           String?
+
+  unit          Unit           @relation(fields: [unitId], references: [id])
+  processRecord ProcessRecord? @relation(fields: [processRecordId], references: [id])
+
+  @@index([unitId, inspectedAt])
+  @@index([result, inspectedAt])
+}
+
+model TestRecord {
+  id              String   @id @default(uuid()) @db.Uuid
+  unitId          String   @db.Uuid
+  processRecordId String?  @db.Uuid
+  testType        String
+  result          Result
+  measuredValue   Decimal? @db.Decimal(14, 3)
+  measurementUnit String?
+  lowerLimit      Decimal? @db.Decimal(14, 3)
+  upperLimit      Decimal? @db.Decimal(14, 3)
+  equipmentName   String?
+  operatorName    String?
+  certificateNo   String?  @unique
+  testedAt        DateTime @default(now())
+  notes           String?
+
+  unit          Unit           @relation(fields: [unitId], references: [id])
+  processRecord ProcessRecord? @relation(fields: [processRecordId], references: [id])
+
+  @@index([unitId, testedAt])
+  @@index([result, testedAt])
+}

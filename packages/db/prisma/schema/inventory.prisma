@@ -1,0 +1,68 @@
+model Material {
+  id            String       @id @default(uuid()) @db.Uuid
+  code          String       @unique
+  name          String
+  specification String?
+  category      String
+  unit          MaterialUnit
+  leadTimeDays  Int          @default(0)
+  safetyStock   Decimal      @default(0) @db.Decimal(14, 3)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  bomItems      BomItem[]
+  inventoryLots InventoryLot[]
+}
+
+model BomItem {
+  id              String  @id @default(uuid()) @db.Uuid
+  orderId         String  @db.Uuid
+  materialId      String  @db.Uuid
+  quantityPerUnit Decimal @db.Decimal(14, 3)
+  scrapRate       Decimal @default(0) @db.Decimal(5, 2)
+
+  order    Order    @relation(fields: [orderId], references: [id])
+  material Material @relation(fields: [materialId], references: [id])
+
+  @@unique([orderId, materialId])
+  @@index([materialId])
+}
+
+model InventoryLot {
+  id               String    @id @default(uuid()) @db.Uuid
+  materialId       String    @db.Uuid
+  lotNo            String    @unique
+  supplierName     String?
+  receivedQuantity Decimal   @db.Decimal(14, 3)
+  currentQuantity  Decimal   @db.Decimal(14, 3)
+  receivedAt       DateTime
+  expiresAt        DateTime? @db.Date
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  material Material        @relation(fields: [materialId], references: [id])
+  usage    MaterialUsage[]
+
+  @@index([materialId, currentQuantity])
+}
+
+model MaterialUsage {
+  id              String   @id @default(uuid()) @db.Uuid
+  inventoryLotId  String   @db.Uuid
+  orderId         String   @db.Uuid
+  unitId          String?  @db.Uuid
+  processRecordId String?  @db.Uuid
+  quantity        Decimal  @db.Decimal(14, 3)
+  consumedAt      DateTime @default(now())
+  operatorName    String?
+  notes           String?
+
+  inventoryLot  InventoryLot   @relation(fields: [inventoryLotId], references: [id])
+  order         Order          @relation(fields: [orderId], references: [id])
+  unit          Unit?          @relation(fields: [unitId], references: [id])
+  processRecord ProcessRecord? @relation(fields: [processRecordId], references: [id])
+
+  @@index([inventoryLotId, consumedAt])
+  @@index([orderId])
+  @@index([unitId])
+}

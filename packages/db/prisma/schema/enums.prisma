@@ -1,0 +1,44 @@
+enum OrderStatus {
+  PLANNED
+  IN_PRODUCTION
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum UnitStatus {
+  WAITING
+  IN_PROGRESS
+  INSPECTION
+  TESTING
+  BLOCKED
+  COMPLETED
+}
+
+enum ProcessStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  REWORK
+  BLOCKED
+}
+
+enum Result {
+  PASS
+  FAIL
+  REVIEW
+}
+
+enum Severity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+enum MaterialUnit {
+  EA
+  M
+  KG
+  M2
+  SET
+}

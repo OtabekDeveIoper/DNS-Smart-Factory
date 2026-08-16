@@ -1,0 +1,38 @@
+model ProcessStep {
+  id            String  @id @default(uuid()) @db.Uuid
+  code          String  @unique
+  name          String
+  sequence      Int     @unique
+  standardHours Decimal @db.Decimal(8, 2)
+  isActive      Boolean @default(true)
+
+  processRecords ProcessRecord[]
+}
+
+model ProcessRecord {
+  id            String        @id @default(uuid()) @db.Uuid
+  unitId        String        @db.Uuid
+  processStepId String        @db.Uuid
+  status        ProcessStatus @default(PENDING)
+  equipmentCode String?
+  plannedStart  DateTime?
+  startedAt     DateTime?
+  completedAt   DateTime?
+  operatorName  String?
+  goodQty       Int           @default(0)
+  defectQty     Int           @default(0)
+  reworkCount   Int           @default(0)
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  unit          Unit            @relation(fields: [unitId], references: [id])
+  processStep   ProcessStep     @relation(fields: [processStepId], references: [id])
+  materialUsage MaterialUsage[]
+  inspections   Inspection[]
+  testRecords   TestRecord[]
+
+  @@unique([unitId, processStepId])
+  @@index([status, startedAt])
+  @@index([processStepId, completedAt])
+}
