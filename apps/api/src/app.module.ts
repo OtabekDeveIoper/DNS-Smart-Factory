@@ -6,6 +6,7 @@ import { HealthModule } from './modules/health/health.module';
 import { ConfigModule } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggingInterceptor } from './libs/interceptors/Logging.interceptor';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { LoggingInterceptor } from './libs/interceptors/Logging.interceptor';
     }),
     DatabaseModule,
     HealthModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [
