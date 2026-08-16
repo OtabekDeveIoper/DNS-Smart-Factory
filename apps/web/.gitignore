@@ -39,17 +39,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-!.env.example
-
-# monorepo generated artifacts
-node_modules/
-dist/
-.next/
-generated/prisma/
-
-# local AI assistant skill cache
-.agents/
-.claude/
-.windsurf/
-skills-lock.json
