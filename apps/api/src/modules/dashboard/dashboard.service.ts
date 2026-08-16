@@ -8,6 +8,7 @@ import {
   WeeklyPerformanceRow,
 } from '../../libs/types/dashboard';
 import { OrderStatus, ProcessStatus, UnitStatus } from '@dns-smart-factory/db';
+import { HOURS_PER_WORKDAY } from 'src/libs/constants';
 
 @Injectable()
 export class DashboardService {
@@ -84,7 +85,7 @@ export class DashboardService {
                 SUM(
                 EXTRACT(EPOCH FROM ("completedAt" - "startedAt")) / 60
                 ),
-                480.0 * 7
+                ${HOURS_PER_WORKDAY} * 60 * 7
             ) AS "busyMinutes"
             FROM "ProcessRecord"
             WHERE "startedAt" >= ${sevenDaysAgo}
@@ -95,7 +96,7 @@ export class DashboardService {
         SELECT
             COALESCE(
             SUM("busyMinutes") /
-            NULLIF(COUNT(*) * 480.0 * 7, 0) * 100,
+NULLIF(COUNT(*) * ${HOURS_PER_WORKDAY} * 60 * 7, 0) * 100,
             0
             )::double precision AS "utilization"
         FROM equipment_load
