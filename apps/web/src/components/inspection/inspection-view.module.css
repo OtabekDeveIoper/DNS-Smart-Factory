@@ -147,3 +147,141 @@
     grid-column: 1 / -1;
   }
 }
+
+.targetField {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.targetField > span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.targetField select {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface-raised);
+  color: var(--text);
+  font: 12px var(--font-mono);
+}
+
+.targetField select:focus {
+  border-color: var(--yellow);
+  outline: none;
+}
+
+.targetField select:disabled {
+  opacity: 0.55;
+}
+
+.targetError {
+  margin-bottom: 10px;
+  color: var(--red);
+  font-size: 11px;
+}
+
+.historySection {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.historyHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.historyHeader h3 {
+  font-size: 13px;
+}
+
+.historyHeader span {
+  color: var(--dim);
+  font: 10px var(--font-mono);
+}
+
+.historyList {
+  display: grid;
+  gap: 6px;
+  list-style: none;
+}
+
+.historyItem {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface-raised);
+}
+
+.historyCopy {
+  min-width: 0;
+}
+
+.historyCopy span,
+.historyCopy small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.historyCopy span {
+  font-size: 11px;
+}
+
+.historyCopy small {
+  margin-top: 3px;
+  color: var(--dim);
+  font-size: 9px;
+}
+
+.historyMeta {
+  text-align: right;
+}
+
+.historyMeta strong,
+.historyMeta time {
+  display: block;
+  white-space: nowrap;
+}
+
+.historyMeta strong {
+  font: 10px var(--font-mono);
+}
+
+.historyMeta time {
+  margin-top: 3px;
+  color: var(--dim);
+  font: 8px var(--font-mono);
+}
+
+.historyState {
+  min-height: 70px;
+  display: grid;
+  place-items: center;
+  color: var(--dim);
+  font-size: 11px;
+}
+
+@media (max-width: 520px) {
+  .historyItem {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .historyMeta {
+    grid-column: 1 / -1;
+    text-align: left;
+  }
+}

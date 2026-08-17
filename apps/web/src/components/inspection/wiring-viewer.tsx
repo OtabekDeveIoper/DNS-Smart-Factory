@@ -3,11 +3,18 @@ import styles from "./inspection-view.module.css";
 interface WiringViewerProps {
   scanning: boolean;
   detected: boolean;
+  serialNo: string;
+  confidence: number | null;
 }
 
 const terminalRows = [86, 136, 186, 236, 286];
 
-export function WiringViewer({ scanning, detected }: WiringViewerProps) {
+export function WiringViewer({
+  scanning,
+  detected,
+  serialNo,
+  confidence,
+}: WiringViewerProps) {
   return (
     <div className={styles.viewer}>
       {scanning ? <div className={styles.scanLine} /> : null}
@@ -23,7 +30,7 @@ export function WiringViewer({ scanning, detected }: WiringViewerProps) {
           strokeWidth="2"
         />
         <text x="24" y="34" fill="#64707b" fontSize="12" fontFamily="monospace">
-          DN-2607-014 · MCC UNIT 2/3 · CAM-01
+          {serialNo} · CAM-01
         </text>
         {terminalRows.flatMap((y) => [
           <rect
@@ -97,7 +104,7 @@ export function WiringViewer({ scanning, detected }: WiringViewerProps) {
               fontSize="11"
               fontFamily="monospace"
             >
-              오결선 의심 97.2%
+              {`오결선 의심 ${confidence ?? "-"}%`}
             </text>
           </g>
         ) : null}
