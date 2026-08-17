@@ -1,0 +1,64 @@
+.state {
+  min-height: 160px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  padding: 20px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.state > svg {
+  color: var(--dim);
+}
+
+.state h3 {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.state p {
+  max-width: 520px;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.loading > svg {
+  color: var(--yellow);
+  animation: stateSpin 0.9s linear infinite;
+}
+
+.error > svg {
+  color: var(--red);
+}
+
+.empty > svg {
+  color: var(--dim);
+}
+
+.state button {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface-raised);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.state button:hover {
+  border-color: var(--yellow);
+}
+
+@keyframes stateSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}

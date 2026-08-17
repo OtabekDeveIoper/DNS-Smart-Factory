@@ -9,14 +9,16 @@ import { Panel } from "../ui/panel";
 import { InventoryForecastTable } from "./inventory-forecast-table";
 import { MaterialGrid } from "./material-grid";
 import styles from "./inventory-view.module.css";
+import { getErrorMessage } from "../../lib/api";
+import { AsyncState } from "../ui/async-state";
 
 export function InventoryView() {
-  const { data, error, isLoading } = useInventory();
+  const { data, error, isLoading, mutate } = useInventory();
 
   if (isLoading && !data) {
     return (
-      <Panel title="주요 자재 현황" subtitle="재고 데이터를 불러오는 중">
-        <div className={styles.state}>자재 정보를 불러오고 있습니다.</div>
+      <Panel title="주요 자재 현황" subtitle="재고 데이터 동기화">
+        <AsyncState variant="loading" title="자재 정보를 불러오고 있습니다" />
       </Panel>
     );
   }
@@ -24,11 +26,12 @@ export function InventoryView() {
   if (error || !data) {
     return (
       <Panel title="주요 자재 현황" subtitle="API 연결 오류">
-        <div className={`${styles.state} ${styles.errorState}`}>
-          {error instanceof Error
-            ? error.message
-            : "자재 정보를 불러오지 못했습니다."}
-        </div>
+        <AsyncState
+          variant="error"
+          title="자재 정보를 불러오지 못했습니다"
+          message={getErrorMessage(error, "잠시 후 다시 시도해 주세요.")}
+          onRetry={() => void mutate()}
+        />
       </Panel>
     );
   }

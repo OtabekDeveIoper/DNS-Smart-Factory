@@ -5,9 +5,11 @@ import { ProcessLine } from "./process-line";
 import { WeeklyChart } from "./weekly-chart";
 import styles from "./dashboard-panel.module.css";
 import { useDashboard } from "@/lib/use-dashboard";
+import { getErrorMessage } from "../../lib/api";
+import { AsyncState } from "../ui/async-state";
 
 export function DashboardPanel() {
-  const { data, error, isLoading } = useDashboard();
+  const { data, error, isLoading, mutate } = useDashboard();
 
   if (isLoading && !data) {
     return (
@@ -24,19 +26,19 @@ export function DashboardPanel() {
 
   if (error || !data) {
     return (
-      <section className={styles.errorPanel}>
-        <div>
-          <h2>데이터를 불러오지 못했습니다</h2>
-          <p>
-            {error instanceof Error
-              ? error.message
-              : "Dashboard API 응답을 확인해 주세요."}
-          </p>
-        </div>
-      </section>
+      <Panel title="통합 관제" subtitle="API 연결 오류">
+        <AsyncState
+          variant="error"
+          title="데이터를 불러오지 못했습니다"
+          message={getErrorMessage(
+            error,
+            "Dashboard API 응답을 확인해 주세요.",
+          )}
+          onRetry={() => void mutate()}
+        />
+      </Panel>
     );
   }
-
   return (
     <div className={styles.dashboardView}>
       <KpiGrid kpis={data.kpis} />

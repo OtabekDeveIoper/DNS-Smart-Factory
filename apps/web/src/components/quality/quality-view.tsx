@@ -12,6 +12,8 @@ import { QualityOrderSelect } from "./quality-order-select";
 import { QualityTestTable } from "./quality-test-table";
 import { TraceFlow } from "./trace-flow";
 import styles from "./quality-view.module.css";
+import { getErrorMessage } from "../../lib/api";
+import { AsyncState } from "../ui/async-state";
 
 export function QualityView() {
   const [selectedOrderNo, setSelectedOrderNo] = useState("");
@@ -20,6 +22,7 @@ export function QualityView() {
     data: orders,
     error: ordersError,
     isLoading: ordersLoading,
+    mutate: mutateOrders,
   } = useOrders();
 
   const availableOrders = orders ?? [];
@@ -34,16 +37,26 @@ export function QualityView() {
     data: trace,
     error: traceError,
     isLoading: traceLoading,
+    mutate: mutateTrace,
   } = useQualityTrace(selectedOrder?.orderNo ?? null);
+
+  if (ordersLoading && !orders) {
+    return (
+      <Panel title="시험성적 전산화" subtitle="수주 데이터 동기화">
+        <AsyncState variant="loading" title="수주 정보를 불러오고 있습니다" />
+      </Panel>
+    );
+  }
 
   if (ordersError) {
     return (
       <Panel title="시험성적 전산화" subtitle="API 연결 오류">
-        <div className={`${styles.state} ${styles.errorState}`}>
-          {ordersError instanceof Error
-            ? ordersError.message
-            : "수주 정보를 불러오지 못했습니다."}
-        </div>
+        <AsyncState
+          variant="error"
+          title="수주 정보를 불러오지 못했습니다"
+          message={getErrorMessage(ordersError, "잠시 후 다시 시도해 주세요.")}
+          onRetry={() => void mutateOrders()}
+        />
       </Panel>
     );
   }
@@ -65,15 +78,16 @@ export function QualityView() {
         subtitle="절연저항·내전압·동작시험 결과 자동 수집"
       >
         {traceLoading ? (
-          <div className={styles.state}>시험 결과를 불러오고 있습니다.</div>
+          <AsyncState variant="loading" title="품질 이력을 불러오고 있습니다" />
         ) : null}
 
         {traceError ? (
-          <div className={`${styles.state} ${styles.errorState}`}>
-            {traceError instanceof Error
-              ? traceError.message
-              : "품질 이력을 불러오지 못했습니다."}
-          </div>
+          <AsyncState
+            variant="error"
+            title="품질 이력을 불러오지 못했습니다"
+            message={getErrorMessage(traceError, "잠시 후 다시 시도해 주세요.")}
+            onRetry={() => void mutateTrace()}
+          />
         ) : null}
 
         {!traceLoading && !traceError ? (
@@ -86,20 +100,28 @@ export function QualityView() {
         subtitle="발주처 문의·클레임 시, 호기 번호 하나로 전 이력 3초 소환"
       >
         {traceLoading ? (
-          <div className={styles.state}>추적 이력을 불러오고 있습니다.</div>
+          <AsyncState variant="loading" title="추적 이력을 불러오고 있습니다" />
         ) : null}
 
         {traceError ? (
-          <div className={`${styles.state} ${styles.errorState}`}>
-            품질 추적 이력을 불러오지 못했습니다.
-          </div>
+          <AsyncState
+            variant="error"
+            title="품질 추적 이력을 불러오지 못했습니다"
+            message={getErrorMessage(traceError, "잠시 후 다시 시도해 주세요.")}
+            onRetry={() => void mutateTrace()}
+          />
         ) : null}
 
-        {!traceLoading && !traceError ? <TraceFlow steps={traceSteps} /> : null}
-        <p className={styles.traceNote}>
-          호기 명판에 QR 부착 → 현장에서 스캔하면 준공 후에도 동일 이력 열람.
-          유지보수·개보수 수주로 이어지는 접점이 됩니다.
-        </p>
+        {!traceLoading && !traceError ? (
+          <>
+            <TraceFlow steps={traceSteps} />
+
+            <p className={styles.traceNote}>
+              호기 명판에 QR 부착 → 현장에서 스캔하면 준공 후에도 동일 이력
+              열람. 유지보수·개보수 수주로 이어지는 접점이 됩니다.
+            </p>
+          </>
+        ) : null}
       </Panel>
     </div>
   );

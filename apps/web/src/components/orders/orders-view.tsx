@@ -14,14 +14,16 @@ import {
   selectMostCriticalOrder,
 } from "../../lib/order-presenter";
 import { DeliveryRiskPanel } from "./delivery-risk-panel";
+import { getErrorMessage } from "../../lib/api";
+import { AsyncState } from "../ui/async-state";
 
 export function OrdersView() {
-  const { data, error, isLoading } = useOrders();
+  const { data, error, isLoading, mutate } = useOrders();
 
   if (isLoading && !data) {
     return (
-      <Panel title="호기별 진척 관제" subtitle="수주 데이터를 불러오는 중">
-        <div className={styles.state}>수주 정보를 불러오고 있습니다.</div>
+      <Panel title="호기별 진척 관제" subtitle="수주 데이터 동기화">
+        <AsyncState variant="loading" title="수주 정보를 불러오고 있습니다" />
       </Panel>
     );
   }
@@ -29,11 +31,12 @@ export function OrdersView() {
   if (error || !data) {
     return (
       <Panel title="호기별 진척 관제" subtitle="API 연결 오류">
-        <div className={`${styles.state} ${styles.errorState}`}>
-          {error instanceof Error
-            ? error.message
-            : "수주 정보를 불러오지 못했습니다."}
-        </div>
+        <AsyncState
+          variant="error"
+          title="수주 정보를 불러오지 못했습니다"
+          message={getErrorMessage(error, "잠시 후 다시 시도해 주세요.")}
+          onRetry={() => void mutate()}
+        />
       </Panel>
     );
   }

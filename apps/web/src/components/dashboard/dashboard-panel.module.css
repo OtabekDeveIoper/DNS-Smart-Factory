@@ -9,9 +9,7 @@
   gap: 12px;
 }
 
-.kpiCard,
-.panel,
-.errorPanel {
+.kpiCard {
   border: 1px solid var(--border);
   border-radius: 6px;
   background: var(--surface);
@@ -68,58 +66,6 @@
   color: var(--muted);
 }
 
-.liveDot {
-  width: 7px;
-  height: 7px;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  background: var(--green);
-  box-shadow: 0 0 0 3px rgb(66 189 123 / 12%);
-}
-
-.panel {
-  min-width: 0;
-  padding: 16px 18px;
-}
-
-.panelHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 14px;
-}
-
-.panelHeader h2 {
-  margin-top: 2px;
-  font-size: 15px;
-  font-weight: 650;
-}
-
-.eyebrow {
-  color: var(--yellow);
-  font: 9px var(--font-mono);
-}
-
-.syncState {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  color: var(--dim);
-  font: 10px var(--font-mono);
-  white-space: nowrap;
-}
-
-.spinning {
-  animation: spin 0.9s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .processLine {
   display: flex;
   align-items: stretch;
@@ -169,47 +115,6 @@
   color: var(--yellow);
 }
 
-.stationTopline,
-.stationMeta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.sequence {
-  color: var(--dim);
-  font: 10px var(--font-mono);
-}
-
-.statusPill {
-  padding: 2px 6px;
-  border-radius: 3px;
-  font: 9px var(--font-mono);
-}
-
-.statusRunning {
-  background: rgb(66 189 123 / 12%);
-  color: var(--green);
-}
-
-.statusBlocked {
-  background: rgb(227 99 75 / 12%);
-  color: var(--red);
-}
-
-.statusIdle {
-  background: rgb(100 112 123 / 16%);
-  color: var(--muted);
-}
-
-.processStation h3 {
-  min-height: 38px;
-  margin-top: 10px;
-  font-size: 12px;
-  font-weight: 550;
-}
-
 .stationCount {
   margin: 3px 0 8px;
   font: 500 20px var(--font-mono);
@@ -218,26 +123,6 @@
 .stationCount small {
   color: var(--dim);
   font-size: 9px;
-}
-
-.stationMeta {
-  color: var(--muted);
-  font-size: 9px;
-}
-
-.progressTrack {
-  height: 5px;
-  margin-top: 8px;
-  overflow: hidden;
-  border-radius: 3px;
-  background: var(--surface-deep);
-}
-
-.progressTrack span {
-  height: 100%;
-  display: block;
-  border-radius: 3px;
-  background: var(--blue);
 }
 
 .processConnector {
@@ -283,39 +168,6 @@
   min-height: 258px;
   display: flex;
   flex-direction: column;
-}
-
-.chartLegend {
-  display: flex;
-  justify-content: flex-end;
-  gap: 14px;
-  color: var(--muted);
-  font-size: 10px;
-}
-
-.chartLegend span {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.chartLegend i {
-  width: 8px;
-  height: 8px;
-  display: inline-block;
-  border-radius: 2px;
-}
-
-.legendCompleted {
-  background: var(--blue);
-}
-
-.legendDefect {
-  background: var(--red);
-}
-
-.legendRework {
-  background: var(--yellow);
 }
 
 .barChart {
@@ -382,42 +234,6 @@
   font: 9px var(--font-mono);
 }
 
-.defectMarker,
-.reworkMarker {
-  width: 7px;
-  height: 7px;
-  position: absolute;
-  right: -4px;
-  border: 1px solid var(--surface);
-  border-radius: 50%;
-  background: var(--red);
-}
-
-.defectMarker {
-  bottom: 10px;
-}
-
-.reworkMarker {
-  bottom: 20px;
-  background: var(--yellow);
-}
-
-.barColumn time {
-  color: var(--dim);
-  font: 9px var(--font-mono);
-}
-
-.eventCount {
-  min-width: 24px;
-  height: 24px;
-  display: grid;
-  place-items: center;
-  border-radius: 3px;
-  background: var(--surface-raised);
-  color: var(--muted);
-  font: 10px var(--font-mono);
-}
-
 .alertFeed {
   max-height: 258px;
   overflow-y: auto;
@@ -467,44 +283,6 @@
   background: var(--red);
 }
 
-.alertCopy {
-  min-width: 0;
-  flex: 1;
-}
-
-.alertHeading {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.alertHeading strong {
-  overflow-wrap: anywhere;
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.alertHeading time {
-  color: var(--dim);
-  font: 9px var(--font-mono);
-  white-space: nowrap;
-}
-
-.alertCopy p {
-  margin-top: 3px;
-  color: var(--muted);
-  font-size: 10px;
-  line-height: 1.5;
-}
-
-.alertCopy > span {
-  display: block;
-  margin-top: 4px;
-  color: var(--dim);
-  font: 9px var(--font-mono);
-}
-
 .emptyFeed {
   padding: 60px 0;
   text-align: center;
@@ -548,43 +326,6 @@
   }
 }
 
-.errorPanel {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 20px;
-  border-color: rgb(227 99 75 / 50%);
-}
-
-.errorPanel > svg {
-  color: var(--red);
-}
-
-.errorPanel > div {
-  flex: 1;
-}
-
-.errorPanel h2 {
-  font-size: 14px;
-}
-
-.errorPanel p {
-  margin-top: 3px;
-  color: var(--muted);
-  font-size: 11px;
-}
-
-.iconButton {
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  background: var(--surface-raised);
-  cursor: pointer;
-}
-
 @media (max-width: 1080px) {
   .kpiGrid,
   .skeletonKpis {
@@ -604,24 +345,6 @@
 
   .kpiCard:last-child {
     grid-column: 1 / -1;
-  }
-
-  .panel {
-    padding: 14px;
-  }
-
-  .panelHeader {
-    align-items: flex-start;
-  }
-
-  .syncState {
-    white-space: normal;
-    text-align: right;
-  }
-
-  .chartLegend {
-    justify-content: flex-start;
-    flex-wrap: wrap;
   }
 
   .barChart {
