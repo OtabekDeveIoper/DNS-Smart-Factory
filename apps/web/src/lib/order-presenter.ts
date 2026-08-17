@@ -9,14 +9,7 @@ import type {
   OrderTableRow,
   OrderTableStatus,
 } from "../types/orders";
-
-function formatMonthDay(value: string) {
-  const date = new Date(value);
-  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-  const day = String(date.getUTCDate()).padStart(2, "0");
-
-  return `${month}-${day}`;
-}
+import { formatMonthDay } from "./helpers";
 
 function getCurrentProcess(order: OrderListItem) {
   const processes = order.units

@@ -64,3 +64,21 @@
   font-family: var(--font-mono);
   white-space: nowrap;
 }
+
+.state {
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.errorState {
+  color: var(--red);
+}
+
+.emptyState {
+  height: 140px;
+  text-align: center;
+  color: var(--dim);
+}

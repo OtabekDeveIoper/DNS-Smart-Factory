@@ -18,3 +18,18 @@ const koreanWeekdayFormatter = new Intl.DateTimeFormat("ko-KR", {
 export function formatKoreanWeekday(date: string) {
   return koreanWeekdayFormatter.format(new Date(`${date}T00:00:00+09:00`));
 }
+
+const monthDayFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: "Asia/Seoul",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+export function formatMonthDay(value: string) {
+  const parts = monthDayFormatter.formatToParts(new Date(value));
+
+  const month = parts.find((part) => part.type === "month")?.value;
+  const day = parts.find((part) => part.type === "day")?.value;
+
+  return `${month ?? "--"}-${day ?? "--"}`;
+}
