@@ -4,32 +4,41 @@ import {
   presentInventoryCard,
   presentInventoryForecast,
 } from "../../lib/inventory-presenter";
+import { useTranslation } from "react-i18next";
 import { useInventory } from "../../lib/use-inventory";
 import { Panel } from "../ui/panel";
 import { InventoryForecastTable } from "./inventory-forecast-table";
 import { MaterialGrid } from "./material-grid";
 import styles from "./inventory-view.module.css";
-import { getErrorMessage } from "../../lib/api";
+import { useApiErrorMessage } from "../../lib/use-api-error-message";
 import { AsyncState } from "../ui/async-state";
 
 export function InventoryView() {
+  const { i18n, t } = useTranslation();
+  const getErrorMessage = useApiErrorMessage();
   const { data, error, isLoading, mutate } = useInventory();
 
   if (isLoading && !data) {
     return (
-      <Panel title="주요 자재 현황" subtitle="재고 데이터 동기화">
-        <AsyncState variant="loading" title="자재 정보를 불러오고 있습니다" />
+      <Panel
+        title={t("inventory.title")}
+        subtitle={t("inventory.loadingSubtitle")}
+      >
+        <AsyncState variant="loading" title={t("inventory.loading")} />
       </Panel>
     );
   }
 
   if (error || !data) {
     return (
-      <Panel title="주요 자재 현황" subtitle="API 연결 오류">
+      <Panel
+        title={t("inventory.title")}
+        subtitle={t("common.apiConnectionError")}
+      >
         <AsyncState
           variant="error"
-          title="자재 정보를 불러오지 못했습니다"
-          message={getErrorMessage(error, "잠시 후 다시 시도해 주세요.")}
+          title={t("inventory.loadError")}
+          message={getErrorMessage(error, t("common.retryMessage"))}
           onRetry={() => void mutate()}
         />
       </Panel>
@@ -37,23 +46,29 @@ export function InventoryView() {
   }
 
   const materialCards = data.items.map((item) =>
-    presentInventoryCard(item, data.planningDays),
+    presentInventoryCard(item, data.planningDays, t, i18n.resolvedLanguage),
   );
 
-  const forecastRows = data.items.map(presentInventoryForecast);
+  const forecastRows = data.items.map((item) =>
+    presentInventoryForecast(item, t, i18n.resolvedLanguage),
+  );
 
   return (
     <div className={styles.view}>
       <Panel
-        title="주요 자재 현황"
-        subtitle={`수주 BOM 연동 · ${data.planningDays}일 소요 기준`}
+        title={t("inventory.title")}
+        subtitle={t("inventory.materialsSubtitle", {
+          days: data.planningDays,
+        })}
       >
         <MaterialGrid materials={materialCards} />
       </Panel>
 
       <Panel
-        title="AI 소요 예측"
-        subtitle={`현재고 + 확정 수주 · ${data.planningDays}일 계획`}
+        title={t("inventory.forecastTitle")}
+        subtitle={t("inventory.forecastSubtitle", {
+          days: data.planningDays,
+        })}
       >
         <InventoryForecastTable rows={forecastRows} />
       </Panel>

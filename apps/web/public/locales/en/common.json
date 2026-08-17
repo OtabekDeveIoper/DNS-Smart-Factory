@@ -1,0 +1,348 @@
+{
+  "common": {
+    "retry": "Try again",
+    "apiConnectionError": "API connection error",
+    "retryMessage": "Please try again in a moment.",
+    "errors": {
+      "connection": "Unable to connect to the API server.",
+      "requestFailed": "API request failed. ({{status}})",
+      "invalidResponse": "The API response format is invalid."
+    }
+  },
+  "layout": {
+    "brandName": "DN Electric SMART OPS",
+    "brandSubtitle": "IoT · MES · AI Integrated Control — Assessment Demo",
+    "systemLevel": "Real-time production data collection and analytics",
+    "gatewayStatus": "OPC-UA collection gateway online",
+    "demoBadge": "DEMO · Sample data",
+    "navigationLabel": "System modules",
+    "footer": "This screen is a recruitment assessment system demo. All company names, figures, and order data are fictional samples · Standards: OPC-UA (IEC 62541) / AAS (IEC 63278) · ABH Co., Ltd.",
+    "navigation": {
+      "dashboard": "Overview",
+      "orders": "Orders & Progress",
+      "inspection": "AI Wiring Inspection",
+      "inventory": "Materials & Inventory",
+      "quality": "Tests & Quality History"
+    },
+    "languageSwitcher": {
+      "label": "Display language",
+      "ko": "View in Korean",
+      "en": "View in English"
+    }
+  },
+  "dashboard": {
+    "kpiAriaLabel": "Key production indicators",
+    "error": {
+      "title": "Unable to load dashboard data",
+      "fallback": "Check the Dashboard API response."
+    },
+    "overviewTitle": "Integrated Control",
+    "line": {
+      "title": "Production Line",
+      "subtitle": "Work terminals and IoT sensors aggregate each process automatically — zero manual tallying",
+      "empty": "No process data to display.",
+      "completedCount_one": "{{count}} job",
+      "completedCount_other": "{{count}} jobs",
+      "completionRate": "Completion {{rate}}%"
+    },
+    "weekly": {
+      "title": "Weekly Production",
+      "subtitle": "Completed processes · automatically aggregated",
+      "empty": "No weekly performance to display.",
+      "today": "Today"
+    },
+    "alerts": {
+      "title": "Live Alerts",
+      "subtitle": "Refreshes every 15 seconds · anomaly and threshold events",
+      "empty": "No recent alerts."
+    },
+    "kpis": {
+      "todayOutput": {
+        "label": "Today's Output (Auto)",
+        "unit_one": " job",
+        "unit_other": " jobs",
+        "detail": "▲ Live vs. manual closeout"
+      },
+      "activeUnits": {
+        "label": "Units in Progress",
+        "unit_one": " panel",
+        "unit_other": " panels",
+        "detail": "Includes 3 near deadline"
+      },
+      "onTimeDeliveryRate": {
+        "label": "On-time Delivery (Monthly)",
+        "unit_one": "%",
+        "unit_other": "%",
+        "detail": "▲ 2.1%p"
+      },
+      "weeklyRework": {
+        "label": "Rework This Week",
+        "unit_one": " job",
+        "unit_other": " jobs",
+        "detail": "Wiring 1 · Painting 1"
+      },
+      "equipmentUtilization": {
+        "label": "Equipment Utilization",
+        "unit_one": "%",
+        "unit_other": "%",
+        "detail": "Press brake · CNC"
+      }
+    },
+    "processStatus": {
+      "RUNNING": "Running",
+      "BLOCKED": "Delay risk",
+      "IDLE": "Idle"
+    },
+    "alertTypes": {
+      "DELIVERY_RISK": {
+        "title": "Delivery deadline at risk",
+        "message": "Remaining standard time exceeds available delivery time."
+      },
+      "AI_WIRING_DEFECT": {
+        "title": "Possible wiring defect detected",
+        "message": "Manual review required at terminal block TB-12."
+      },
+      "AI_WIRING_INSPECTION": {
+        "title": "Wiring inspection passed",
+        "message": "No wiring defect detected."
+      },
+      "MATERIAL_SHORTAGE": {
+        "title": "Enclosure steel shortage",
+        "message": "Two-week demand exceeds current inventory."
+      },
+      "PROCESS_BLOCKED": {
+        "title": "Assembly process blocked",
+        "message": "Operator confirmation is required."
+      },
+      "TEST_FAILURE": {
+        "title": "Sequence operation test failed",
+        "message": "Unit requires rework and retesting."
+      }
+    }
+  },
+  "processes": {
+    "SHEET_METAL": "Sheet Metal & Bending",
+    "PAINTING": "Painting",
+    "ASSEMBLY": "Busbar & Assembly",
+    "WIRING": "Wiring",
+    "TESTING": "Inspection & Testing"
+  },
+  "orders": {
+    "title": "Unit Progress Control",
+    "loadingSubtitle": "Synchronizing order data",
+    "loading": "Loading order information",
+    "loadError": "Unable to load order information",
+    "subtitle": "Orders, design, materials, production, and testing in one view · automatic deadline risk alerts",
+    "empty": "No orders have been registered.",
+    "columns": {
+      "orderNo": "Order No.",
+      "product": "Product",
+      "customer": "Customer",
+      "dueDate": "Due Date",
+      "progress": "Progress",
+      "currentProcess": "Current Process",
+      "status": "Status"
+    },
+    "products": {
+      "MCC Panel": "MCC Panel",
+      "ATS Panel": "ATS Panel",
+      "Distribution Board": "Distribution Board"
+    },
+    "panelQuantity_one": "{{product}} · {{count}} panel",
+    "panelQuantity_other": "{{product}} · {{count}} panels",
+    "currentProcess": {
+      "shipping": "Awaiting shipment",
+      "production": "Awaiting production"
+    },
+    "status": {
+      "COMPLETED": "Completed",
+      "OVERDUE": "Overdue",
+      "HIGH": "High risk",
+      "MEDIUM": "Delay risk",
+      "ON_TRACK": "On track",
+      "ON_HOLD": "On hold",
+      "CANCELLED": "Cancelled",
+      "PLANNED": "Planned",
+      "IN_PRODUCTION": "In production"
+    },
+    "risk": {
+      "title": "Reverse Deadline Alert Logic",
+      "subtitle": "Detects delay risk early using standard hours × remaining processes",
+      "empty": "There are no active orders to calculate.",
+      "marginShortage": "{{count}} days short",
+      "marginAvailable": "{{count}} days available",
+      "detail": "({{product}}): {{remainingHours}} standard hours remain → {{productionDays}} production days + {{bufferDays}} buffer days = at least {{requiredDays}} days required. {{availableDays}} days remain until delivery,",
+      "conclusion": "giving a calculated margin of {{margin}}."
+    }
+  },
+  "inspection": {
+    "title": "AI Wiring & Assembly Inspection",
+    "subtitle": "SafeVision-X on-device vision — instant analysis with results saved to unit history",
+    "viewerLabel": "MCC internal wiring diagram",
+    "noTarget": "No inspection target selected",
+    "target": {
+      "label": "Inspection unit",
+      "loading": "Loading targets...",
+      "empty": "No units are available for inspection.",
+      "notInspected": "Not inspected",
+      "loadError": "Unable to load inspection targets."
+    },
+    "actions": {
+      "run": "Run AI Inspection (Demo)",
+      "reset": "Reset"
+    },
+    "phase": {
+      "idle": "Ready — select a unit and run the AI inspection.",
+      "scanning": "Capturing → running on-device inference…",
+      "complete": "Analysis complete — results were saved to quality history for {{serialNo}}.",
+      "requestError": "AI inspection request failed."
+    },
+    "result": {
+      "PASS": "PASS",
+      "FAIL": "Possible miswiring",
+      "REVIEW": "Review required",
+      "complete": "Wiring inspection completed.",
+      "detectedConfidence": "Possible miswiring {{confidence}}%"
+    },
+    "metrics": {
+      "available": "Available",
+      "detected": "Issues Detected",
+      "confidence": "Selected Confidence",
+      "panelUnit_one": " panel",
+      "panelUnit_other": " panels",
+      "countUnit_one": " case",
+      "countUnit_other": " cases"
+    },
+    "history": {
+      "title": "Inspection History",
+      "noUnit": "No unit selected",
+      "loading": "Loading inspection history...",
+      "empty": "No inspection history has been saved.",
+      "cameraUnknown": "Camera not specified",
+      "inspectorUnknown": "Inspector not specified"
+    },
+    "data": {
+      "possibleMiswiring": "Possible miswiring",
+      "manualReview": "Manual review required",
+      "noDefect": "No wiring defect detected",
+      "terminalBlock": "Terminal block TB-12",
+      "aiWiring": "AI wiring inspection"
+    }
+  },
+  "inventory": {
+    "title": "Key Material Status",
+    "loadingSubtitle": "Synchronizing inventory data",
+    "loading": "Loading material information",
+    "loadError": "Unable to load material information",
+    "materialsSubtitle": "Order BOM linked · {{days}}-day demand basis",
+    "forecastTitle": "AI Demand Forecast",
+    "forecastSubtitle": "Current inventory + confirmed orders · {{days}}-day plan",
+    "emptyMaterials": "No materials have been registered.",
+    "emptyForecast": "No inventory forecast to display.",
+    "columns": {
+      "material": "Material",
+      "currentStock": "On Hand",
+      "demand": "2-week Demand",
+      "status": "Status",
+      "suggestion": "Recommendation"
+    },
+    "materials": {
+      "CU-BUS-50": "Copper Busbar (50×5)",
+      "MC-22B": "Magnetic Contactor (MC-22b)",
+      "MCCB-100A": "MCCB (100A)",
+      "STEEL-1.6T": "Enclosure Steel (1.6T)",
+      "TERM-2.5": "Terminal Block (2.5mm)"
+    },
+    "status": {
+      "SUFFICIENT": "Sufficient",
+      "LOW": "Low",
+      "SHORTAGE": "Shortage"
+    },
+    "caption": {
+      "shortage": "Short by {{quantity}}{{unit}} · {{days}}-day lead time",
+      "low": "Near safety stock · projected balance {{quantity}}{{unit}}",
+      "sufficient": "Sufficient for the next {{days}} days"
+    },
+    "shortage": "Short by {{quantity}}{{unit}}",
+    "suggestion": {
+      "monitor": "Monitor inventory trend",
+      "orderRequired": "Order required ({{days}}-day lead time)",
+      "orderNow": "Order now ({{days}}-day lead time)",
+      "orderBy": "Order by {{date}}"
+    }
+  },
+  "quality": {
+    "title": "Digital Test Reports",
+    "ordersLoadingSubtitle": "Synchronizing order data",
+    "ordersLoading": "Loading order information",
+    "ordersLoadError": "Unable to load order information",
+    "testsSubtitle": "Automatic collection of insulation, dielectric, and operation test results",
+    "historyLoading": "Loading quality history",
+    "historyLoadError": "Unable to load quality history",
+    "traceTitle": "Traceability",
+    "traceSubtitle": "Retrieve the full unit history in 3 seconds for customer inquiries and claims",
+    "traceLoading": "Loading trace history",
+    "traceLoadError": "Unable to load quality trace history",
+    "traceEmpty": "No trace history to display.",
+    "traceNote": "Attach a QR code to the unit nameplate so the same history remains accessible on site after completion, creating a path to maintenance and retrofit orders.",
+    "orderSelect": {
+      "label": "Select order to trace",
+      "loading": "Loading orders...",
+      "empty": "No orders are available."
+    },
+    "columns": {
+      "unit": "Unit",
+      "test": "Test",
+      "measured": "Measured Value",
+      "standard": "Standard",
+      "result": "Result",
+      "operatorTime": "Operator / Time"
+    },
+    "emptyTests": "No test results have been saved.",
+    "tests": {
+      "INSULATION_RESISTANCE": "Insulation Resistance",
+      "AC_WITHSTAND": "AC Withstand",
+      "SEQUENCE_OPERATION": "Sequence Operation"
+    },
+    "result": {
+      "PASS": "PASS",
+      "FAIL": "FAIL · Retest",
+      "REVIEW": "REVIEW"
+    },
+    "traceStatus": {
+      "PASS": "PASS",
+      "FAIL": "FAIL",
+      "REVIEW": "Review required",
+      "PENDING": "Pending"
+    },
+    "processStatus": {
+      "PENDING": "Pending",
+      "IN_PROGRESS": "In progress",
+      "COMPLETED": "Completed",
+      "REWORK": "Rework",
+      "BLOCKED": "Blocked"
+    },
+    "allItems": "All items",
+    "operatorUnknown": "Operator not specified",
+    "count": {
+      "pending": "{{label}} pending",
+      "failed": "{{label}} FAIL · {{count}}",
+      "review": "{{label}} REVIEW · {{count}}",
+      "passed": "{{label}} PASS {{passed}}/{{total}}"
+    },
+    "trace": {
+      "materialLot": "Material LOT {{lot}}",
+      "additionalLots": " + {{count}} more",
+      "materialLotMissing": "Material LOT not registered",
+      "productionPending": "Production process pending",
+      "order": "Order {{date}} · {{customer}}",
+      "product_one": "{{product}} · {{count}} panel",
+      "product_other": "{{product}} · {{count}} panels",
+      "aiInspection": "AI inspection",
+      "test": "Test",
+      "certificate_one": "{{count}} certificate traced",
+      "certificate_other": "{{count}} certificates traced",
+      "qualitySummary": "Quality summary {{status}}"
+    }
+  }
+}

@@ -10,6 +10,7 @@ export function InspectionMetrics({
   targets,
   confidence,
 }: InspectionMetricsProps) {
+  const { t } = useTranslation();
   const detectedCount = targets.filter((target) => {
     const result = target.latestInspection?.result;
 
@@ -19,23 +20,27 @@ export function InspectionMetrics({
   return (
     <div className={styles.metrics}>
       <article>
-        <span>검사 가능</span>
+        <span>{t("inspection.metrics.available")}</span>
         <strong>
           {targets.length}
-          <small> 면</small>
+          <small>
+            {t("inspection.metrics.panelUnit", { count: targets.length })}
+          </small>
         </strong>
       </article>
 
       <article>
-        <span>이상 검출</span>
+        <span>{t("inspection.metrics.detected")}</span>
         <strong>
           {detectedCount}
-          <small> 건</small>
+          <small>
+            {t("inspection.metrics.countUnit", { count: detectedCount })}
+          </small>
         </strong>
       </article>
 
       <article>
-        <span>선택 신뢰도</span>
+        <span>{t("inspection.metrics.confidence")}</span>
         <strong>
           {confidence ?? "-"}
           {confidence !== null ? <small> %</small> : null}
@@ -44,3 +49,4 @@ export function InspectionMetrics({
     </div>
   );
 }
+import { useTranslation } from "react-i18next";

@@ -1,4 +1,5 @@
 import { Inbox, LoaderCircle, RotateCcw, TriangleAlert } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import styles from "./async-state.module.css";
 
 type AsyncStateVariant = "loading" | "error" | "empty";
@@ -16,6 +17,8 @@ export function AsyncState({
   message,
   onRetry,
 }: AsyncStateProps) {
+  const { t } = useTranslation();
+
   return (
     <div
       className={`${styles.state} ${styles[variant]}`}
@@ -40,7 +43,7 @@ export function AsyncState({
       {variant === "error" && onRetry ? (
         <button type="button" onClick={onRetry}>
           <RotateCcw size={14} />
-          다시 시도
+          {t("common.retry")}
         </button>
       ) : null}
     </div>

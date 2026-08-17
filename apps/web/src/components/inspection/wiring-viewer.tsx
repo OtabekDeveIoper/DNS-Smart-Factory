@@ -15,10 +15,16 @@ export function WiringViewer({
   serialNo,
   confidence,
 }: WiringViewerProps) {
+  const { t } = useTranslation();
+
   return (
     <div className={styles.viewer}>
       {scanning ? <div className={styles.scanLine} /> : null}
-      <svg viewBox="0 0 520 340" role="img" aria-label="MCC 내부 배선 모식도">
+      <svg
+        viewBox="0 0 520 340"
+        role="img"
+        aria-label={t("inspection.viewerLabel")}
+      >
         <rect
           x="8"
           y="8"
@@ -104,7 +110,9 @@ export function WiringViewer({
               fontSize="11"
               fontFamily="monospace"
             >
-              {`오결선 의심 ${confidence ?? "-"}%`}
+              {t("inspection.result.detectedConfidence", {
+                confidence: confidence ?? "-",
+              })}
             </text>
           </g>
         ) : null}
@@ -112,3 +120,4 @@ export function WiringViewer({
     </div>
   );
 }
+import { useTranslation } from "react-i18next";

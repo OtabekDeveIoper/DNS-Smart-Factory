@@ -1,0 +1,348 @@
+{
+  "common": {
+    "retry": "다시 시도",
+    "apiConnectionError": "API 연결 오류",
+    "retryMessage": "잠시 후 다시 시도해 주세요.",
+    "errors": {
+      "connection": "API 서버에 연결할 수 없습니다.",
+      "requestFailed": "API 요청에 실패했습니다. ({{status}})",
+      "invalidResponse": "API 응답 형식이 올바르지 않습니다."
+    }
+  },
+  "layout": {
+    "brandName": "DN전기 SMART OPS",
+    "brandSubtitle": "IoT · MES · AI 통합 관제 — 과제용 시안",
+    "systemLevel": "생산정보 실시간 수집·분석 시스템",
+    "gatewayStatus": "수집 게이트웨이 OPC-UA 정상",
+    "demoBadge": "DEMO · 시연용 샘플 데이터",
+    "navigationLabel": "시스템 모듈",
+    "footer": "본 화면은 채용 과제용 시스템 시안(DEMO)이며, 회사명·수치·수주정보는 모두 가상의 샘플 데이터입니다 · 표준 참고: OPC-UA(IEC 62541) / AAS(IEC 63278) · ㈜에이비에이치(ABH)",
+    "navigation": {
+      "dashboard": "통합 관제",
+      "orders": "수주·공정 진척",
+      "inspection": "AI 배선검사",
+      "inventory": "자재·재고",
+      "quality": "시험·품질이력"
+    },
+    "languageSwitcher": {
+      "label": "표시 언어",
+      "ko": "한국어로 보기",
+      "en": "영어로 보기"
+    }
+  },
+  "dashboard": {
+    "kpiAriaLabel": "핵심 생산 지표",
+    "error": {
+      "title": "데이터를 불러오지 못했습니다",
+      "fallback": "Dashboard API 응답을 확인해 주세요."
+    },
+    "overviewTitle": "통합 관제",
+    "line": {
+      "title": "라인 현황",
+      "subtitle": "공정별 실적이 작업 단말·IoT 센서에서 자동 집계됩니다 — 수기 집계 0",
+      "empty": "표시할 공정 데이터가 없습니다.",
+      "completedCount_one": "{{count}}건",
+      "completedCount_other": "{{count}}건",
+      "completionRate": "완료율 {{rate}}%"
+    },
+    "weekly": {
+      "title": "주간 생산실적",
+      "subtitle": "완료 공정 수 · 자동 집계",
+      "empty": "표시할 주간 실적이 없습니다.",
+      "today": "금일"
+    },
+    "alerts": {
+      "title": "실시간 알림",
+      "subtitle": "15초 자동 갱신 · 이상·임계 이벤트",
+      "empty": "최근 알림이 없습니다."
+    },
+    "kpis": {
+      "todayOutput": {
+        "label": "금일 공정실적 (자동집계)",
+        "unit_one": "건",
+        "unit_other": "건",
+        "detail": "▲ 수기 마감 대비 실시간"
+      },
+      "activeUnits": {
+        "label": "진행 중 호기",
+        "unit_one": "면",
+        "unit_other": "면",
+        "detail": "납기 임박 3면 포함"
+      },
+      "onTimeDeliveryRate": {
+        "label": "납기준수율 (월간)",
+        "unit_one": "%",
+        "unit_other": "%",
+        "detail": "▲ 2.1%p"
+      },
+      "weeklyRework": {
+        "label": "재작업 발생 (금주)",
+        "unit_one": "건",
+        "unit_other": "건",
+        "detail": "배선 1 · 도장 1"
+      },
+      "equipmentUtilization": {
+        "label": "주요설비 가동률",
+        "unit_one": "%",
+        "unit_other": "%",
+        "detail": "절곡기 · CNC 기준"
+      }
+    },
+    "processStatus": {
+      "RUNNING": "가동",
+      "BLOCKED": "지연주의",
+      "IDLE": "대기"
+    },
+    "alertTypes": {
+      "DELIVERY_RISK": {
+        "title": "납기 위험 감지",
+        "message": "잔여 표준시간이 납기까지 남은 시간을 초과합니다."
+      },
+      "AI_WIRING_DEFECT": {
+        "title": "오결선 의심 감지",
+        "message": "단자대 TB-12의 수동 검토가 필요합니다."
+      },
+      "AI_WIRING_INSPECTION": {
+        "title": "배선 검사 통과",
+        "message": "배선 결함이 감지되지 않았습니다."
+      },
+      "MATERIAL_SHORTAGE": {
+        "title": "외함 강판 재고 부족",
+        "message": "2주 소요량이 현재 재고를 초과합니다."
+      },
+      "PROCESS_BLOCKED": {
+        "title": "조립 공정 중단",
+        "message": "작업자 확인이 필요합니다."
+      },
+      "TEST_FAILURE": {
+        "title": "시퀀스 동작시험 실패",
+        "message": "호기 재작업 및 재시험이 필요합니다."
+      }
+    }
+  },
+  "processes": {
+    "SHEET_METAL": "판금·절곡",
+    "PAINTING": "도장",
+    "ASSEMBLY": "부스바·조립",
+    "WIRING": "배선",
+    "TESTING": "검사·시험"
+  },
+  "orders": {
+    "title": "호기별 진척 관제",
+    "loadingSubtitle": "수주 데이터 동기화",
+    "loading": "수주 정보를 불러오고 있습니다",
+    "loadError": "수주 정보를 불러오지 못했습니다",
+    "subtitle": "수주–설계–자재–생산–시험이 한 화면 · 납기 역산 자동 경보",
+    "empty": "등록된 수주 정보가 없습니다.",
+    "columns": {
+      "orderNo": "수주번호",
+      "product": "품목",
+      "customer": "수요처",
+      "dueDate": "납기",
+      "progress": "공정 진척",
+      "currentProcess": "현재 공정",
+      "status": "상태"
+    },
+    "products": {
+      "MCC Panel": "MCC반",
+      "ATS Panel": "자동절체반",
+      "Distribution Board": "분전반"
+    },
+    "panelQuantity_one": "{{product}} {{count}}면",
+    "panelQuantity_other": "{{product}} {{count}}면",
+    "currentProcess": {
+      "shipping": "출하 대기",
+      "production": "생산 대기"
+    },
+    "status": {
+      "COMPLETED": "완료",
+      "OVERDUE": "기한초과",
+      "HIGH": "납기위험",
+      "MEDIUM": "지연주의",
+      "ON_TRACK": "정상",
+      "ON_HOLD": "보류",
+      "CANCELLED": "취소",
+      "PLANNED": "계획",
+      "IN_PRODUCTION": "생산 중"
+    },
+    "risk": {
+      "title": "납기 역산 경보 로직",
+      "subtitle": "공정 표준시간 × 잔여 공정으로 지연 위험을 사전 감지",
+      "empty": "현재 계산할 진행 수주가 없습니다.",
+      "marginShortage": "{{count}}일 부족",
+      "marginAvailable": "{{count}}일 여유",
+      "detail": "({{product}}): 잔여 표준공수 {{remainingHours}}시간 → 생산 {{productionDays}}일 + 버퍼 {{bufferDays}}일 = 최소 {{requiredDays}}일 필요. 납기까지 {{availableDays}}일 남았으며,",
+      "conclusion": "현재 계산상 {{margin}}입니다."
+    }
+  },
+  "inspection": {
+    "title": "AI 배선·조립 검사",
+    "subtitle": "SafeVision-X 온디바이스 비전 — 촬영 즉시 판독, 결과는 호기 이력에 자동 저장",
+    "viewerLabel": "MCC 내부 배선 모식도",
+    "noTarget": "검사 대상 미선택",
+    "target": {
+      "label": "검사 대상 호기",
+      "loading": "대상 불러오는 중...",
+      "empty": "검사 가능한 호기가 없습니다.",
+      "notInspected": "미검사",
+      "loadError": "검사 대상을 불러오지 못했습니다."
+    },
+    "actions": {
+      "run": "AI 검사 실행 (시연)",
+      "reset": "초기화"
+    },
+    "phase": {
+      "idle": "검사 대기 중 — 대상 호기를 선택하고 AI 검사를 실행해 주세요.",
+      "scanning": "촬영 → 온디바이스 추론 중…",
+      "complete": "판독 완료 — 결과가 호기 {{serialNo}} 품질 이력에 저장되었습니다.",
+      "requestError": "AI 검사 요청에 실패했습니다."
+    },
+    "result": {
+      "PASS": "PASS",
+      "FAIL": "오결선 의심",
+      "REVIEW": "검토 필요",
+      "complete": "배선 검사가 완료되었습니다.",
+      "detectedConfidence": "오결선 의심 {{confidence}}%"
+    },
+    "metrics": {
+      "available": "검사 가능",
+      "detected": "이상 검출",
+      "confidence": "선택 신뢰도",
+      "panelUnit_one": "면",
+      "panelUnit_other": "면",
+      "countUnit_one": "건",
+      "countUnit_other": "건"
+    },
+    "history": {
+      "title": "검사 이력",
+      "noUnit": "호기 미선택",
+      "loading": "검사 이력 불러오는 중...",
+      "empty": "저장된 검사 이력이 없습니다.",
+      "cameraUnknown": "CAM 미지정",
+      "inspectorUnknown": "검사자 미지정"
+    },
+    "data": {
+      "possibleMiswiring": "오결선 의심",
+      "manualReview": "수동 검토 필요",
+      "noDefect": "배선 결함이 감지되지 않음",
+      "terminalBlock": "단자대 TB-12",
+      "aiWiring": "AI 배선검사"
+    }
+  },
+  "inventory": {
+    "title": "주요 자재 현황",
+    "loadingSubtitle": "재고 데이터 동기화",
+    "loading": "자재 정보를 불러오고 있습니다",
+    "loadError": "자재 정보를 불러오지 못했습니다",
+    "materialsSubtitle": "수주 BOM 연동 · {{days}}일 소요 기준",
+    "forecastTitle": "AI 소요 예측",
+    "forecastSubtitle": "현재고 + 확정 수주 · {{days}}일 계획",
+    "emptyMaterials": "등록된 자재가 없습니다.",
+    "emptyForecast": "표시할 재고 예측이 없습니다.",
+    "columns": {
+      "material": "자재",
+      "currentStock": "현재고",
+      "demand": "2주 내 소요",
+      "status": "판정",
+      "suggestion": "제안"
+    },
+    "materials": {
+      "CU-BUS-50": "동 부스바 (50×5)",
+      "MC-22B": "전자접촉기 (MC-22b)",
+      "MCCB-100A": "MCCB (100A)",
+      "STEEL-1.6T": "외함 강판 (1.6T)",
+      "TERM-2.5": "단자대 (2.5mm)"
+    },
+    "status": {
+      "SUFFICIENT": "충분",
+      "LOW": "주의",
+      "SHORTAGE": "결품"
+    },
+    "caption": {
+      "shortage": "부족 {{quantity}}{{unit}} · 리드타임 {{days}}일",
+      "low": "안전재고 근접 · 예상 잔량 {{quantity}}{{unit}}",
+      "sufficient": "향후 {{days}}일 소요 대비 충분"
+    },
+    "shortage": "부족 {{quantity}}{{unit}}",
+    "suggestion": {
+      "monitor": "재고 추이 모니터링",
+      "orderRequired": "발주 필요 (리드타임 {{days}}일)",
+      "orderNow": "즉시 발주 (리드타임 {{days}}일)",
+      "orderBy": "{{date}}까지 발주"
+    }
+  },
+  "quality": {
+    "title": "시험성적 전산화",
+    "ordersLoadingSubtitle": "수주 데이터 동기화",
+    "ordersLoading": "수주 정보를 불러오고 있습니다",
+    "ordersLoadError": "수주 정보를 불러오지 못했습니다",
+    "testsSubtitle": "절연저항·내전압·동작시험 결과 자동 수집",
+    "historyLoading": "품질 이력을 불러오고 있습니다",
+    "historyLoadError": "품질 이력을 불러오지 못했습니다",
+    "traceTitle": "이력 추적 (Traceability)",
+    "traceSubtitle": "발주처 문의·클레임 시, 호기 번호 하나로 전 이력 3초 소환",
+    "traceLoading": "추적 이력을 불러오고 있습니다",
+    "traceLoadError": "품질 추적 이력을 불러오지 못했습니다",
+    "traceEmpty": "표시할 추적 이력이 없습니다.",
+    "traceNote": "호기 명판에 QR 부착 → 현장에서 스캔하면 준공 후에도 동일 이력 열람. 유지보수·개보수 수주로 이어지는 접점이 됩니다.",
+    "orderSelect": {
+      "label": "추적 수주 선택",
+      "loading": "수주 불러오는 중...",
+      "empty": "선택 가능한 수주가 없습니다."
+    },
+    "columns": {
+      "unit": "호기",
+      "test": "시험항목",
+      "measured": "측정값",
+      "standard": "기준",
+      "result": "판정",
+      "operatorTime": "시험자 / 일시"
+    },
+    "emptyTests": "저장된 시험 결과가 없습니다.",
+    "tests": {
+      "INSULATION_RESISTANCE": "절연저항",
+      "AC_WITHSTAND": "내전압",
+      "SEQUENCE_OPERATION": "시퀀스 동작시험"
+    },
+    "result": {
+      "PASS": "PASS",
+      "FAIL": "FAIL · 재시험",
+      "REVIEW": "REVIEW"
+    },
+    "traceStatus": {
+      "PASS": "PASS",
+      "FAIL": "FAIL",
+      "REVIEW": "검토 필요",
+      "PENDING": "대기"
+    },
+    "processStatus": {
+      "PENDING": "대기",
+      "IN_PROGRESS": "진행",
+      "COMPLETED": "완료",
+      "REWORK": "재작업",
+      "BLOCKED": "중단"
+    },
+    "allItems": "전 항목",
+    "operatorUnknown": "시험자 미지정",
+    "count": {
+      "pending": "{{label}} 대기",
+      "failed": "{{label}} FAIL {{count}}건",
+      "review": "{{label}} REVIEW {{count}}건",
+      "passed": "{{label}} PASS {{passed}}/{{total}}"
+    },
+    "trace": {
+      "materialLot": "자재 LOT {{lot}}",
+      "additionalLots": " 외 {{count}}건",
+      "materialLotMissing": "자재 LOT 미등록",
+      "productionPending": "생산 공정 대기",
+      "order": "수주 {{date}} · {{customer}}",
+      "product_one": "{{product}} · {{count}}면",
+      "product_other": "{{product}} · {{count}}면",
+      "aiInspection": "AI검사",
+      "test": "시험",
+      "certificate_one": "성적서 {{count}}건 추적",
+      "certificate_other": "성적서 {{count}}건 추적",
+      "qualitySummary": "품질 종합 {{status}}"
+    }
+  }
+}

@@ -1,8 +1,7 @@
-import {
-  INSPECTION_RESULT_LABELS,
-  INSPECTION_RESULT_TONES,
-} from "../../constants/inspection";
+import { INSPECTION_RESULT_TONES } from "../../constants/inspection";
+import { useTranslation } from "react-i18next";
 import { formatTime } from "../../lib/helpers";
+import { presentInspectionData } from "../../lib/inspection-presenter";
 import type { UnitInspectionHistory } from "../../types/inspection";
 import { StatusBadge } from "../ui/status-badge";
 import styles from "./inspection-view.module.css";
@@ -18,15 +17,19 @@ export function InspectionHistory({
   loading,
   errorMessage,
 }: InspectionHistoryProps) {
+  const { i18n, t } = useTranslation();
+
   return (
     <section className={styles.historySection}>
       <header className={styles.historyHeader}>
-        <h3>검사 이력</h3>
-        <span>{history?.serialNo ?? "호기 미선택"}</span>
+        <h3>{t("inspection.history.title")}</h3>
+        <span>{history?.serialNo ?? t("inspection.history.noUnit")}</span>
       </header>
 
       {loading ? (
-        <div className={styles.historyState}>검사 이력 불러오는 중...</div>
+        <div className={styles.historyState}>
+          {t("inspection.history.loading")}
+        </div>
       ) : null}
 
       {errorMessage ? (
@@ -36,7 +39,9 @@ export function InspectionHistory({
       ) : null}
 
       {!loading && !errorMessage && history?.inspections.length === 0 ? (
-        <div className={styles.historyState}>저장된 검사 이력이 없습니다.</div>
+        <div className={styles.historyState}>
+          {t("inspection.history.empty")}
+        </div>
       ) : null}
 
       {!loading &&
@@ -48,18 +53,24 @@ export function InspectionHistory({
             <li className={styles.historyItem} key={inspection.id}>
               <div className={styles.historyCopy}>
                 <span>
-                  {inspection.defectLocation ??
-                    inspection.notes ??
-                    inspection.inspectionType}
+                  {presentInspectionData(
+                    inspection.defectLocation ??
+                      inspection.notes ??
+                      inspection.inspectionType,
+                    t,
+                  )}
                 </span>
                 <small>
-                  {inspection.cameraCode ?? "CAM 미지정"} ·{" "}
-                  {inspection.inspectorName ?? "검사자 미지정"}
+                  {inspection.cameraCode ??
+                    t("inspection.history.cameraUnknown")}{" "}
+                  ·{" "}
+                  {inspection.inspectorName ??
+                    t("inspection.history.inspectorUnknown")}
                 </small>
               </div>
 
               <StatusBadge tone={INSPECTION_RESULT_TONES[inspection.result]}>
-                {INSPECTION_RESULT_LABELS[inspection.result]}
+                {t(`inspection.result.${inspection.result}`)}
               </StatusBadge>
 
               <div className={styles.historyMeta}>
@@ -68,7 +79,9 @@ export function InspectionHistory({
                     ? "-"
                     : `${inspection.confidence}%`}
                 </strong>
-                <time>{formatTime(inspection.inspectedAt)}</time>
+                <time>
+                  {formatTime(inspection.inspectedAt, i18n.resolvedLanguage)}
+                </time>
               </div>
             </li>
           ))}

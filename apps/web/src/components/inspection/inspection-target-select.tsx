@@ -16,28 +16,35 @@ export function InspectionTargetSelect({
   loading,
   onChange,
 }: InspectionTargetSelectProps) {
+  const { t } = useTranslation();
+
   return (
     <label className={styles.targetField}>
-      <span>검사 대상 호기</span>
+      <span>{t("inspection.target.label")}</span>
 
       <select
         value={selectedSerialNo}
         disabled={disabled || loading || targets.length === 0}
         onChange={(event) => onChange(event.target.value)}
       >
-        {loading ? <option value="">대상 불러오는 중...</option> : null}
+        {loading ? (
+          <option value="">{t("inspection.target.loading")}</option>
+        ) : null}
 
         {!loading && targets.length === 0 ? (
-          <option value="">검사 가능한 호기가 없습니다.</option>
+          <option value="">{t("inspection.target.empty")}</option>
         ) : null}
 
         {targets.map((target) => (
           <option value={target.serialNo} key={target.id}>
             {target.serialNo} · {target.order.orderNo} ·{" "}
-            {target.latestInspection?.result ?? "미검사"}
+            {target.latestInspection
+              ? t(`inspection.result.${target.latestInspection.result}`)
+              : t("inspection.target.notInspected")}
           </option>
         ))}
       </select>
     </label>
   );
 }
+import { useTranslation } from "react-i18next";

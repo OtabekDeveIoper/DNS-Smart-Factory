@@ -92,6 +92,42 @@
   box-shadow: 0 0 0 3px rgb(66 189 123 / 12%);
 }
 
+.languageSwitcher {
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--dim);
+}
+
+.languageSwitcher > svg {
+  margin: 0 4px;
+}
+
+.languageSwitcher button {
+  width: 30px;
+  height: 20px;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--muted);
+  font: 10px var(--font-mono);
+  cursor: pointer;
+}
+
+.languageSwitcher button:hover {
+  color: var(--text);
+}
+
+.languageSwitcher button.activeLanguage {
+  background: var(--yellow);
+  color: #151719;
+  font-weight: 700;
+}
+
 .tabBar {
   position: sticky;
   top: 0;
@@ -203,6 +239,10 @@
 @media (max-width: 430px) {
   .brand span,
   .demoBadge {
+    display: none;
+  }
+
+  .languageSwitcher > svg {
     display: none;
   }
 }

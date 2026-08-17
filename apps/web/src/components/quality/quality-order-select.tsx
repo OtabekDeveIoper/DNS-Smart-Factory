@@ -14,27 +14,36 @@ export function QualityOrderSelect({
   loading,
   onChange,
 }: QualityOrderSelectProps) {
+  const { t } = useTranslation();
+
   return (
     <label className={styles.orderField}>
-      <span>추적 수주 선택</span>
+      <span>{t("quality.orderSelect.label")}</span>
 
       <select
         value={selectedOrderNo}
         disabled={loading || orders.length === 0}
         onChange={(event) => onChange(event.target.value)}
       >
-        {loading ? <option value="">수주 불러오는 중...</option> : null}
+        {loading ? (
+          <option value="">{t("quality.orderSelect.loading")}</option>
+        ) : null}
 
         {!loading && orders.length === 0 ? (
-          <option value="">선택 가능한 수주가 없습니다.</option>
+          <option value="">{t("quality.orderSelect.empty")}</option>
         ) : null}
 
         {orders.map((order) => (
           <option value={order.orderNo} key={order.id}>
-            {order.orderNo} · {order.productName} · {order.status}
+            {order.orderNo} ·{" "}
+            {t(`orders.products.${order.productName}`, {
+              defaultValue: order.productName,
+            })}{" "}
+            · {t(`orders.status.${order.status}`)}
           </option>
         ))}
       </select>
     </label>
   );
 }
+import { useTranslation } from "react-i18next";

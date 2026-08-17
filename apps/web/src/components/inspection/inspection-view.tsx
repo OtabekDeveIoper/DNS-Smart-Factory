@@ -2,6 +2,7 @@
 
 import { Play, RotateCcw } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { analyzeInspection } from "../../lib/inspection-api";
 import type {
   AnalyzeInspectionResponse,
@@ -16,13 +17,16 @@ import { InspectionTargetSelect } from "./inspection-target-select";
 import { InspectionMetrics } from "./inspection-metrics";
 import { useInspectionHistory } from "../../lib/use-inspection-history";
 import { InspectionHistory } from "./inspection-history";
+import { useApiErrorMessage } from "../../lib/use-api-error-message";
 
 export function InspectionView() {
+  const { t } = useTranslation();
+  const getErrorMessage = useApiErrorMessage();
   const [phase, setPhase] = useState<InspectionPhase>("idle");
 
   const [result, setResult] = useState<AnalyzeInspectionResponse | null>(null);
 
-  const [requestError, setRequestError] = useState<string | null>(null);
+  const [requestError, setRequestError] = useState<unknown>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const {
@@ -94,9 +98,7 @@ export function InspectionView() {
         timerRef.current = null;
       }
 
-      setRequestError(
-        error instanceof Error ? error.message : "AI 검사 요청에 실패했습니다.",
-      );
+      setRequestError(error);
 
       setPhase("error");
     }
@@ -114,10 +116,7 @@ export function InspectionView() {
   };
 
   return (
-    <Panel
-      title="AI 배선·조립 검사"
-      subtitle="SafeVision-X 온디바이스 비전 — 촬영 즉시 판독, 결과는 호기 이력에 자동 저장"
-    >
+    <Panel title={t("inspection.title")} subtitle={t("inspection.subtitle")}>
       <div className={styles.layout}>
         <WiringViewer
           scanning={phase === "scanning"}
@@ -126,7 +125,7 @@ export function InspectionView() {
             result !== null &&
             result.inspection.result !== "PASS"
           }
-          serialNo={selectedTarget?.serialNo ?? "검사 대상 미선택"}
+          serialNo={selectedTarget?.serialNo ?? t("inspection.noTarget")}
           confidence={selectedConfidence}
         />
         <div className={styles.controls}>
@@ -143,9 +142,7 @@ export function InspectionView() {
 
           {targetsError ? (
             <p className={styles.targetError}>
-              {targetsError instanceof Error
-                ? targetsError.message
-                : "검사 대상을 불러오지 못했습니다."}
+              {getErrorMessage(targetsError, t("inspection.target.loadError"))}
             </p>
           ) : null}
           <div className={styles.actions}>
@@ -155,31 +152,37 @@ export function InspectionView() {
               disabled={phase === "scanning" || !selectedTarget}
               onClick={runInspection}
             >
-              <Play size={16} fill="currentColor" /> AI 검사 실행 (시연)
+              <Play size={16} fill="currentColor" />
+              {t("inspection.actions.run")}
             </button>
             <button
               className={styles.secondaryButton}
               type="button"
               onClick={resetInspection}
-              title="초기화"
+              title={t("inspection.actions.reset")}
               disabled={phase === "scanning"}
             >
-              <RotateCcw size={16} /> 초기화
+              <RotateCcw size={16} /> {t("inspection.actions.reset")}
             </button>
           </div>
           <p className={styles.message}>
-            {phase === "idle"
-              ? "검사 대기 중 — 대상 호기를 선택하고 AI 검사를 실행해 주세요."
-              : null}
+            {phase === "idle" ? t("inspection.phase.idle") : null}
 
-            {phase === "scanning" ? "촬영 → 온디바이스 추론 중…" : null}
+            {phase === "scanning" ? t("inspection.phase.scanning") : null}
 
             {phase === "complete" && result
-              ? `판독 완료 — 결과가 호기 ${result.unit.serialNo} 품질 이력에 저장되었습니다.`
+              ? t("inspection.phase.complete", {
+                  serialNo: result.unit.serialNo,
+                })
               : null}
 
             {phase === "error" ? (
-              <span className={styles.failed}>{requestError}</span>
+              <span className={styles.failed}>
+                {getErrorMessage(
+                  requestError,
+                  t("inspection.phase.requestError"),
+                )}
+              </span>
             ) : null}
           </p>
           {phase === "complete" && result ? (
@@ -193,7 +196,9 @@ export function InspectionView() {
             history={history}
             loading={historyLoading}
             errorMessage={
-              historyError instanceof Error ? historyError.message : null
+              historyError
+                ? getErrorMessage(historyError, t("common.retryMessage"))
+                : null
             }
           />
         </div>

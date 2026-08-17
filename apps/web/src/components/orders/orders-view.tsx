@@ -4,6 +4,7 @@ import {
   ORDER_STATUS_TONES,
   RISKY_ORDER_STATUSES,
 } from "../../constants/orders";
+import { useTranslation } from "react-i18next";
 import { useOrders } from "../../lib/use-orders";
 import { DataTable } from "../ui/data-table";
 import { Panel } from "../ui/panel";
@@ -14,58 +15,62 @@ import {
   selectMostCriticalOrder,
 } from "../../lib/order-presenter";
 import { DeliveryRiskPanel } from "./delivery-risk-panel";
-import { getErrorMessage } from "../../lib/api";
+import { useApiErrorMessage } from "../../lib/use-api-error-message";
 import { AsyncState } from "../ui/async-state";
 
 export function OrdersView() {
+  const { i18n, t } = useTranslation();
+  const getErrorMessage = useApiErrorMessage();
   const { data, error, isLoading, mutate } = useOrders();
 
   if (isLoading && !data) {
     return (
-      <Panel title="호기별 진척 관제" subtitle="수주 데이터 동기화">
-        <AsyncState variant="loading" title="수주 정보를 불러오고 있습니다" />
+      <Panel title={t("orders.title")} subtitle={t("orders.loadingSubtitle")}>
+        <AsyncState variant="loading" title={t("orders.loading")} />
       </Panel>
     );
   }
 
   if (error || !data) {
     return (
-      <Panel title="호기별 진척 관제" subtitle="API 연결 오류">
+      <Panel
+        title={t("orders.title")}
+        subtitle={t("common.apiConnectionError")}
+      >
         <AsyncState
           variant="error"
-          title="수주 정보를 불러오지 못했습니다"
-          message={getErrorMessage(error, "잠시 후 다시 시도해 주세요.")}
+          title={t("orders.loadError")}
+          message={getErrorMessage(error, t("common.retryMessage"))}
           onRetry={() => void mutate()}
         />
       </Panel>
     );
   }
 
-  const orders = data.map(presentOrder);
+  const orders = data.map((order) =>
+    presentOrder(order, t, i18n.resolvedLanguage),
+  );
   const criticalOrder = selectMostCriticalOrder(data);
   return (
     <div className={styles.view}>
-      <Panel
-        title="호기별 진척 관제"
-        subtitle="수주–설계–자재–생산–시험이 한 화면 · 납기 역산 자동 경보"
-      >
+      <Panel title={t("orders.title")} subtitle={t("orders.subtitle")}>
         <DataTable>
           <thead>
             <tr>
-              <th>수주번호</th>
-              <th>품목</th>
-              <th>수요처</th>
-              <th>납기</th>
-              <th>공정 진척</th>
-              <th>현재 공정</th>
-              <th>상태</th>
+              <th>{t("orders.columns.orderNo")}</th>
+              <th>{t("orders.columns.product")}</th>
+              <th>{t("orders.columns.customer")}</th>
+              <th>{t("orders.columns.dueDate")}</th>
+              <th>{t("orders.columns.progress")}</th>
+              <th>{t("orders.columns.currentProcess")}</th>
+              <th>{t("orders.columns.status")}</th>
             </tr>
           </thead>
           <tbody>
             {orders.length === 0 ? (
               <tr>
                 <td className={styles.emptyState} colSpan={7}>
-                  등록된 수주 정보가 없습니다.
+                  {t("orders.empty")}
                 </td>
               </tr>
             ) : (
@@ -90,7 +95,7 @@ export function OrdersView() {
                   <td>{order.currentProcess}</td>
                   <td>
                     <StatusBadge tone={ORDER_STATUS_TONES[order.status]}>
-                      {order.status}
+                      {t(`orders.status.${order.status}`)}
                     </StatusBadge>
                   </td>
                 </tr>

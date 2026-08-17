@@ -1,9 +1,6 @@
-import {
-  DELIVERY_RISK_LABELS,
-  DELIVERY_RISK_PRIORITY,
-  PRODUCT_LABELS,
-} from "../constants/orders";
-import { PROCESS_LABELS } from "../constants/processes";
+import type { TFunction } from "i18next";
+import { DELIVERY_RISK_PRIORITY } from "../constants/orders";
+import { KNOWN_PROCESS_CODES } from "../constants/processes";
 import type {
   OrderListItem,
   OrderTableRow,
@@ -11,43 +8,51 @@ import type {
 } from "../types/orders";
 import { formatMonthDay } from "./helpers";
 
-function getCurrentProcess(order: OrderListItem) {
+function getCurrentProcess(order: OrderListItem, t: TFunction) {
   const processes = order.units
     .map((unit) => unit.currentProcess)
     .filter((process) => process !== null)
     .sort((first, second) => first.sequence - second.sequence);
-
   const currentProcess = processes[0];
 
   if (currentProcess) {
-    return PROCESS_LABELS[currentProcess.code] ?? currentProcess.name;
+    return KNOWN_PROCESS_CODES.has(currentProcess.code)
+      ? t(`processes.${currentProcess.code}`)
+      : currentProcess.name;
   }
 
-  return order.status === "COMPLETED" ? "출하 대기" : "생산 대기";
+  return order.status === "COMPLETED"
+    ? t("orders.currentProcess.shipping")
+    : t("orders.currentProcess.production");
 }
 
 function getOrderStatus(order: OrderListItem): OrderTableStatus {
-  if (order.status === "CANCELLED") {
-    return "취소";
+  if (order.status === "CANCELLED" || order.status === "ON_HOLD") {
+    return order.status;
   }
 
-  if (order.status === "ON_HOLD") {
-    return "보류";
-  }
-
-  return DELIVERY_RISK_LABELS[order.deliveryRisk.level];
+  return order.deliveryRisk.level;
 }
 
-export function presentOrder(order: OrderListItem): OrderTableRow {
-  const productName = PRODUCT_LABELS[order.productName] ?? order.productName;
+export function presentOrder(
+  order: OrderListItem,
+  t: TFunction,
+  language?: string,
+): OrderTableRow {
+  const productName = t(`orders.products.${order.productName}`, {
+    defaultValue: order.productName,
+  });
 
   return {
     orderNo: order.orderNo,
-    product: `${productName} ${order.quantity}면`,
+    product: t("orders.panelQuantity", {
+      product: productName,
+      count: order.quantity,
+    }),
     customer: order.customer.name,
-    dueDate: formatMonthDay(order.dueDate),
+    dueDate: formatMonthDay(order.dueDate, language),
     progress: order.progressPercent,
-    currentProcess: getCurrentProcess(order),
+    currentProcess: getCurrentProcess(order, t),
     status: getOrderStatus(order),
     deliveryRisk: order.deliveryRisk,
   };

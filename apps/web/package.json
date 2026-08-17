@@ -9,10 +9,13 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "i18next": "^26.3.6",
+    "i18next-http-backend": "^4.0.1",
     "lucide-react": "^1.31.0",
     "next": "16.3.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "react-i18next": "^17.0.11",
     "swr": "^2.5.1"
   },
   "devDependencies": {

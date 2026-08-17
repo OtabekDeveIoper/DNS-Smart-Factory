@@ -8,19 +8,14 @@ interface InspectionResultListProps {
 export function InspectionResultList({
   inspection,
 }: InspectionResultListProps) {
+  const { t } = useTranslation();
   const failed = inspection.result !== "PASS";
 
   const description =
     inspection.defectLocation && inspection.defectType
-      ? `${inspection.defectType} · ${inspection.defectLocation}`
-      : (inspection.notes ?? "배선 검사가 완료되었습니다.");
-
-  const resultLabel =
-    inspection.result === "FAIL"
-      ? "오결선 의심"
-      : inspection.result === "REVIEW"
-        ? "검토 필요"
-        : "PASS";
+      ? `${presentInspectionData(inspection.defectType, t)} · ${presentInspectionData(inspection.defectLocation, t)}`
+      : (presentInspectionData(inspection.notes, t) ??
+        t("inspection.result.complete"));
 
   return (
     <ul className={styles.results}>
@@ -28,7 +23,7 @@ export function InspectionResultList({
         <span>{description}</span>
 
         <strong className={failed ? styles.failed : styles.passed}>
-          {resultLabel}
+          {t(`inspection.result.${inspection.result}`)}
         </strong>
 
         <small>
@@ -38,3 +33,5 @@ export function InspectionResultList({
     </ul>
   );
 }
+import { useTranslation } from "react-i18next";
+import { presentInspectionData } from "../../lib/inspection-presenter";

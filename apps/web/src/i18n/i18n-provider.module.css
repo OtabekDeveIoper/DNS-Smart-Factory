@@ -1,0 +1,22 @@
+.loading {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: var(--background);
+}
+
+.loading::after {
+  width: 24px;
+  height: 24px;
+  content: "";
+  border: 2px solid var(--border);
+  border-top-color: var(--yellow);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

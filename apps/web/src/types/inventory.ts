@@ -1,7 +1,5 @@
 import type { OrderStatus } from "./orders";
 
-export type InventoryStatus = "충분" | "주의" | "결품";
-
 export type MaterialUnit = "EA" | "M" | "KG" | "M2" | "SET";
 
 export type InventoryStockStatus = "SUFFICIENT" | "LOW" | "SHORTAGE";
@@ -59,7 +57,7 @@ export interface InventoryCardViewModel {
   quantity: string;
   unit: string;
   level: number;
-  status: InventoryStatus;
+  status: InventoryStockStatus;
   caption: string;
 }
 
@@ -68,7 +66,7 @@ export interface InventoryForecastRow {
   material: string;
   currentStock: string;
   demand: string;
-  status: InventoryStatus;
+  status: InventoryStockStatus;
   shortage: string | null;
   suggestion: string;
 }

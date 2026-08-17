@@ -5,8 +5,10 @@ interface TraceFlowProps {
 }
 
 export function TraceFlow({ steps }: TraceFlowProps) {
+  const { t } = useTranslation();
+
   if (steps.length === 0) {
-    return <div className={styles.state}>표시할 추적 이력이 없습니다.</div>;
+    return <div className={styles.state}>{t("quality.traceEmpty")}</div>;
   }
 
   return (
@@ -25,3 +27,4 @@ export function TraceFlow({ steps }: TraceFlowProps) {
     </div>
   );
 }
+import { useTranslation } from "react-i18next";

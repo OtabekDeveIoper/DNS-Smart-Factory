@@ -6,11 +6,14 @@ interface ApiErrorBody {
   error?: string;
 }
 
+export type ApiErrorKind = "connection" | "request" | "invalid-response";
+
 export class ApiError extends Error {
   public constructor(
     message: string,
     public readonly status: number,
     public readonly payload: unknown,
+    public readonly kind: ApiErrorKind,
   ) {
     super(message);
     this.name = "ApiError";
@@ -55,10 +58,6 @@ function getApiErrorMessage(payload: unknown, fallback: string): string {
   return fallback;
 }
 
-export function getErrorMessage(error: unknown, fallback: string): string {
-  return error instanceof Error ? error.message : fallback;
-}
-
 export async function apiFetch<T>(
   path: string,
   init?: RequestInit,
@@ -81,7 +80,12 @@ export async function apiFetch<T>(
       throw error;
     }
 
-    throw new ApiError("API 서버에 연결할 수 없습니다.", 0, error);
+    throw new ApiError(
+      "Unable to connect to the API server.",
+      0,
+      error,
+      "connection",
+    );
   }
 
   const responseText = await response.text();
@@ -89,9 +93,10 @@ export async function apiFetch<T>(
 
   if (!response.ok) {
     throw new ApiError(
-      getApiErrorMessage(payload, `API 요청 실패 (${response.status})`),
+      getApiErrorMessage(payload, `API request failed (${response.status})`),
       response.status,
       payload,
+      "request",
     );
   }
 
@@ -101,9 +106,10 @@ export async function apiFetch<T>(
 
   if (typeof payload === "string") {
     throw new ApiError(
-      "API 응답 형식이 올바르지 않습니다.",
+      "The API response format is invalid.",
       response.status,
       payload,
+      "invalid-response",
     );
   }
 

@@ -13,8 +13,12 @@ const severityStyles: Record<DashboardAlert["severity"], string> = {
 };
 
 export function AlertFeed({ alerts }: AlertFeedProps) {
+  const { i18n, t } = useTranslation();
+
   if (alerts.length === 0) {
-    return <div className={styles.emptyFeed}>최근 알림이 없습니다.</div>;
+    return (
+      <div className={styles.emptyFeed}>{t("dashboard.alerts.empty")}</div>
+    );
   }
 
   return (
@@ -27,14 +31,23 @@ export function AlertFeed({ alerts }: AlertFeedProps) {
             }`}
           />
 
-          <time>{formatTime(alert.occurredAt).slice(-8)}</time>
+          <time>
+            {formatTime(alert.occurredAt, i18n.resolvedLanguage).slice(-8)}
+          </time>
 
           <span>
-            {alert.title}
-            {alert.message ? ` — ${alert.message}` : null}
+            {t(`dashboard.alertTypes.${alert.type}.title`, {
+              defaultValue: alert.title,
+            })}
+            {alert.message
+              ? ` — ${t(`dashboard.alertTypes.${alert.type}.message`, {
+                  defaultValue: alert.message,
+                })}`
+              : null}
           </span>
         </li>
       ))}
     </ul>
   );
 }
+import { useTranslation } from "react-i18next";

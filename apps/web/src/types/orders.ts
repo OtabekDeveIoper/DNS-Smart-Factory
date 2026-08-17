@@ -68,7 +68,7 @@ export interface OrderListItem {
 }
 
 export type OrderTableStatus =
-  "정상" | "지연주의" | "납기위험" | "기한초과" | "보류" | "취소" | "완료";
+  DeliveryRiskLevel | Extract<OrderStatus, "ON_HOLD" | "CANCELLED">;
 
 export interface OrderTableRow {
   orderNo: string;

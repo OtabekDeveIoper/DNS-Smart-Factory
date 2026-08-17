@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { NAVIGATION_ITEMS } from "../../constants/navigation";
 import { formatTime } from "../../lib/helpers";
 import type { AppTabId } from "../../types/navigation";
@@ -9,6 +10,7 @@ import { InspectionView } from "../inspection/inspection-view";
 import { InventoryView } from "../inventory/inventory-view";
 import { OrdersView } from "../orders/orders-view";
 import { QualityView } from "../quality/quality-view";
+import { LanguageSwitcher } from "./language-switcher";
 import styles from "./smart-ops-app.module.css";
 
 const views: Record<AppTabId, ReactNode> = {
@@ -20,6 +22,7 @@ const views: Record<AppTabId, ReactNode> = {
 };
 
 export function SmartOpsApp() {
+  const { i18n, t } = useTranslation();
   const [activeTab, setActiveTab] = useState<AppTabId>("dashboard");
   const [clock, setClock] = useState<Date | null>(null);
 
@@ -40,26 +43,31 @@ export function SmartOpsApp() {
         <div className={styles.brand}>
           <div className={styles.brandMark}>DN</div>
           <div>
-            <strong>DN전기 SMART OPS</strong>
-            <span>IoT · MES · AI 통합 관제 — 과제용 시안</span>
+            <strong>{t("layout.brandName")}</strong>
+            <span>{t("layout.brandSubtitle")}</span>
           </div>
         </div>
         <div className={styles.appMeta}>
-          <span className={styles.levelBadge}>
-            생산정보 실시간 수집·분석 시스템
-          </span>
+          <span className={styles.levelBadge}>{t("layout.systemLevel")}</span>
           <span className={styles.connectionBadge}>
             <span className={styles.liveDot} />
-            수집 게이트웨이 OPC-UA 정상
+            {t("layout.gatewayStatus")}
           </span>
           <time>
-            {clock ? formatTime(clock.toISOString()) : "--/--, --:--:--"}
+            {clock
+              ? formatTime(clock.toISOString(), i18n.resolvedLanguage)
+              : "--/--, --:--:--"}
           </time>
-          <span className={styles.demoBadge}>DEMO · 시연용 샘플 데이터</span>
+          <span className={styles.demoBadge}>{t("layout.demoBadge")}</span>
+          <LanguageSwitcher />
         </div>
       </header>
 
-      <nav className={styles.tabBar} role="tablist" aria-label="시스템 모듈">
+      <nav
+        className={styles.tabBar}
+        role="tablist"
+        aria-label={t("layout.navigationLabel")}
+      >
         {NAVIGATION_ITEMS.map((item) => {
           const Icon = item.icon;
           const selected = item.id === activeTab;
@@ -74,7 +82,7 @@ export function SmartOpsApp() {
             >
               <span className={styles.tabNumber}>{item.number}</span>
               <Icon size={15} />
-              <span>{item.label}</span>
+              <span>{t(`layout.navigation.${item.id}`)}</span>
             </button>
           );
         })}
@@ -84,11 +92,7 @@ export function SmartOpsApp() {
         {views[activeTab]}
       </main>
 
-      <footer className={styles.footer}>
-        본 화면은 채용 과제용 시스템 시안(DEMO)이며, 회사명·수치·수주정보는 모두
-        가상의 샘플 데이터입니다 · 표준 참고: OPC-UA(IEC 62541) / AAS(IEC 63278)
-        · ㈜에이비에이치(ABH)
-      </footer>
+      <footer className={styles.footer}>{t("layout.footer")}</footer>
     </div>
   );
 }

@@ -1,50 +1,53 @@
-import {
-  INVENTORY_STATUS_LABELS,
-  MATERIAL_LABELS,
-  MATERIAL_UNIT_LABELS,
-} from "../constants/inventory";
+import type { TFunction } from "i18next";
+import { MATERIAL_UNIT_LABELS } from "../constants/inventory";
 import type {
   InventoryCardViewModel,
   InventoryForecastRow,
   InventoryItem,
 } from "../types/inventory";
-import { formatMonthDay } from "./helpers";
+import { formatMonthDay, formatNumber } from "./helpers";
 
-const quantityFormatter = new Intl.NumberFormat("ko-KR", {
-  maximumFractionDigits: 1,
-});
-
-function formatQuantity(value: number) {
-  return quantityFormatter.format(value);
-}
-
-function getPurchaseSuggestion(item: InventoryItem) {
+function getPurchaseSuggestion(
+  item: InventoryItem,
+  t: TFunction,
+  language?: string,
+) {
   if (item.status === "SUFFICIENT") {
     return "—";
   }
 
   if (item.status === "LOW") {
-    return "재고 추이 모니터링";
+    return t("inventory.suggestion.monitor");
   }
 
   if (!item.purchaseByAt) {
-    return `발주 필요 (리드타임 ${item.leadTimeDays}일)`;
+    return t("inventory.suggestion.orderRequired", {
+      days: item.leadTimeDays,
+    });
   }
 
   const purchaseDate = new Date(item.purchaseByAt);
   const isPurchaseOverdue = purchaseDate.getTime() <= Date.now();
 
   return isPurchaseOverdue
-    ? `즉시 발주 (리드타임 ${item.leadTimeDays}일)`
-    : `${formatMonthDay(item.purchaseByAt)}까지 발주`;
+    ? t("inventory.suggestion.orderNow", { days: item.leadTimeDays })
+    : t("inventory.suggestion.orderBy", {
+        date: formatMonthDay(item.purchaseByAt, language),
+      });
+}
+
+function getMaterialName(item: InventoryItem, t: TFunction) {
+  return t(`inventory.materials.${item.code}`, { defaultValue: item.name });
 }
 
 export function presentInventoryCard(
   item: InventoryItem,
   planningDays: number,
+  t: TFunction,
+  language?: string,
 ): InventoryCardViewModel {
   const unit = MATERIAL_UNIT_LABELS[item.unit];
-
+  const formatQuantity = (value: number) => formatNumber(value, language);
   const level =
     item.requiredStock <= 0
       ? 100
@@ -52,41 +55,52 @@ export function presentInventoryCard(
           100,
           Math.round((item.currentStock / item.requiredStock) * 100),
         );
-
   const caption =
     item.status === "SHORTAGE"
-      ? `부족 ${formatQuantity(item.shortageQuantity)}${unit} · 리드타임 ${item.leadTimeDays}일`
+      ? t("inventory.caption.shortage", {
+          quantity: formatQuantity(item.shortageQuantity),
+          unit,
+          days: item.leadTimeDays,
+        })
       : item.status === "LOW"
-        ? `안전재고 근접 · 예상 잔량 ${formatQuantity(item.projectedBalance)}${unit}`
-        : `향후 ${planningDays}일 소요 대비 충분`;
+        ? t("inventory.caption.low", {
+            quantity: formatQuantity(item.projectedBalance),
+            unit,
+          })
+        : t("inventory.caption.sufficient", { days: planningDays });
 
   return {
     id: item.id,
-    name: MATERIAL_LABELS[item.code] ?? item.name,
+    name: getMaterialName(item, t),
     quantity: formatQuantity(item.currentStock),
     unit,
     level,
-    status: INVENTORY_STATUS_LABELS[item.status],
+    status: item.status,
     caption,
   };
 }
 
 export function presentInventoryForecast(
   item: InventoryItem,
+  t: TFunction,
+  language?: string,
 ): InventoryForecastRow {
   const unit = MATERIAL_UNIT_LABELS[item.unit];
-  const status = INVENTORY_STATUS_LABELS[item.status];
+  const formatQuantity = (value: number) => formatNumber(value, language);
 
   return {
     id: item.id,
-    material: MATERIAL_LABELS[item.code] ?? item.name,
+    material: getMaterialName(item, t),
     currentStock: `${formatQuantity(item.currentStock)}${unit}`,
     demand: `${formatQuantity(item.twoWeekDemand)}${unit}`,
-    status,
+    status: item.status,
     shortage:
       item.shortageQuantity > 0
-        ? `부족 ${formatQuantity(item.shortageQuantity)}${unit}`
+        ? t("inventory.shortage", {
+            quantity: formatQuantity(item.shortageQuantity),
+            unit,
+          })
         : null,
-    suggestion: getPurchaseSuggestion(item),
+    suggestion: getPurchaseSuggestion(item, t, language),
   };
 }

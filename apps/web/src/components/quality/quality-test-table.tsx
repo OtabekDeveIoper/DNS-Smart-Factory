@@ -1,7 +1,5 @@
-import {
-  QUALITY_RESULT_LABELS,
-  QUALITY_RESULT_TONES,
-} from "../../constants/quality";
+import { QUALITY_RESULT_TONES } from "../../constants/quality";
+import { useTranslation } from "react-i18next";
 import type { QualityTestViewModel } from "../../types/quality";
 import { DataTable } from "../ui/data-table";
 import { StatusBadge } from "../ui/status-badge";
@@ -12,16 +10,18 @@ interface QualityTestTableProps {
 }
 
 export function QualityTestTable({ rows }: QualityTestTableProps) {
+  const { t } = useTranslation();
+
   return (
     <DataTable>
       <thead>
         <tr>
-          <th>호기</th>
-          <th>시험항목</th>
-          <th>측정값</th>
-          <th>기준</th>
-          <th>판정</th>
-          <th>시험자 / 일시</th>
+          <th>{t("quality.columns.unit")}</th>
+          <th>{t("quality.columns.test")}</th>
+          <th>{t("quality.columns.measured")}</th>
+          <th>{t("quality.columns.standard")}</th>
+          <th>{t("quality.columns.result")}</th>
+          <th>{t("quality.columns.operatorTime")}</th>
         </tr>
       </thead>
 
@@ -29,7 +29,7 @@ export function QualityTestTable({ rows }: QualityTestTableProps) {
         {rows.length === 0 ? (
           <tr>
             <td className={styles.emptyState} colSpan={6}>
-              저장된 시험 결과가 없습니다.
+              {t("quality.emptyTests")}
             </td>
           </tr>
         ) : (
@@ -41,7 +41,7 @@ export function QualityTestTable({ rows }: QualityTestTableProps) {
               <td className={styles.mono}>{row.standard}</td>
               <td>
                 <StatusBadge tone={QUALITY_RESULT_TONES[row.result]}>
-                  {QUALITY_RESULT_LABELS[row.result]}
+                  {t(`quality.result.${row.result}`)}
                 </StatusBadge>
               </td>
               <td className={styles.mono}>{row.operatorAndTime}</td>

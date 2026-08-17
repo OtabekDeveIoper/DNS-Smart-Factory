@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import type { ReactNode } from "react";
+import { I18nProvider } from "@/i18n/i18n-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DN전기 SMART OPS | 스마트공장 통합 관제",
-  description: "IoT · MES · AI 기반 스마트공장 통합 관제 시스템",
+  title: "DN Electric SMART OPS",
+  description: "IoT, MES, and AI-powered smart factory operations dashboard",
 };
 
 interface RootLayoutProps {
@@ -25,7 +26,9 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: Readonly<RootLayoutProps>) {
   return (
     <html lang="ko" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body>{children}</body>
+      <body>
+        <I18nProvider>{children}</I18nProvider>
+      </body>
     </html>
   );
 }

@@ -1,4 +1,5 @@
-import { formatKoreanWeekday } from "../../lib/helpers";
+import { useTranslation } from "react-i18next";
+import { formatWeekday } from "../../lib/helpers";
 import type { WeeklyPerformancePoint } from "../../types/dashboard";
 import styles from "./dashboard-panel.module.css";
 
@@ -7,8 +8,12 @@ interface WeeklyChartProps {
 }
 
 export function WeeklyChart({ points }: WeeklyChartProps) {
+  const { i18n, t } = useTranslation();
+
   if (points.length === 0) {
-    return <div className={styles.emptyFeed}>표시할 주간 실적이 없습니다.</div>;
+    return (
+      <div className={styles.emptyFeed}>{t("dashboard.weekly.empty")}</div>
+    );
   }
 
   const highestOutput = Math.max(...points.map((point) => point.completed), 1);
@@ -38,7 +43,9 @@ export function WeeklyChart({ points }: WeeklyChartProps) {
               </div>
 
               <span className={styles.dayLabel}>
-                {isToday ? "금일" : formatKoreanWeekday(item.date)}
+                {isToday
+                  ? t("dashboard.weekly.today")
+                  : formatWeekday(item.date, i18n.resolvedLanguage)}
               </span>
             </div>
           );

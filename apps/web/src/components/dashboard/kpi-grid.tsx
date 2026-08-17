@@ -7,23 +7,33 @@ interface KpiGridProps {
 }
 
 export function KpiGrid({ kpis }: KpiGridProps) {
+  const { t } = useTranslation();
+
   return (
-    <section className={styles.kpiGrid} aria-label="핵심 생산 지표">
-      {KPI_DEFINITIONS.map(({ key, label, unit, detail, tone, icon: Icon }) => (
+    <section
+      className={styles.kpiGrid}
+      aria-label={t("dashboard.kpiAriaLabel")}
+    >
+      {KPI_DEFINITIONS.map(({ key, tone, icon: Icon }) => (
         <article className={styles.kpiCard} key={key}>
           <div className={styles.kpiHeader}>
-            <span>{label}</span>
+            <span>{t(`dashboard.kpis.${key}.label`)}</span>
             <Icon size={17} />
           </div>
 
           <div className={styles.kpiValue}>
             {kpis[key]}
-            <small>{unit}</small>
+            <small>
+              {t(`dashboard.kpis.${key}.unit`, { count: kpis[key] })}
+            </small>
           </div>
 
-          <div className={`${styles.kpiFooter} ${styles[tone]}`}>{detail}</div>
+          <div className={`${styles.kpiFooter} ${styles[tone]}`}>
+            {t(`dashboard.kpis.${key}.detail`)}
+          </div>
         </article>
       ))}
     </section>
   );
 }
+import { useTranslation } from "react-i18next";

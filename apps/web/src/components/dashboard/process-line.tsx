@@ -1,5 +1,5 @@
-import { PROCESS_STATUS_LABELS } from "../../constants/dashboard";
-import { PROCESS_LABELS } from "../../constants/processes";
+import { useTranslation } from "react-i18next";
+import { KNOWN_PROCESS_CODES } from "../../constants/processes";
 import type { ProcessLineItem } from "../../types/dashboard";
 import styles from "./dashboard-panel.module.css";
 
@@ -14,10 +14,10 @@ const stationStyles: Record<ProcessLineItem["status"], string> = {
 };
 
 export function ProcessLine({ items }: ProcessLineProps) {
+  const { t } = useTranslation();
+
   if (items.length === 0) {
-    return (
-      <div className={styles.emptyFeed}>표시할 공정 데이터가 없습니다.</div>
-    );
+    return <div className={styles.emptyFeed}>{t("dashboard.line.empty")}</div>;
   }
 
   return (
@@ -30,17 +30,22 @@ export function ProcessLine({ items }: ProcessLineProps) {
             }`}
           >
             <span className={styles.processName}>
-              {PROCESS_LABELS[process.code] ?? process.name}
+              {KNOWN_PROCESS_CODES.has(process.code)
+                ? t(`processes.${process.code}`)
+                : process.name}
             </span>
 
             <div className={styles.stationCount}>
-              {process.completed}
-              <small> 건</small>
+              {t("dashboard.line.completedCount", {
+                count: process.completed,
+              })}
             </div>
 
             <div className={styles.stationState}>
-              {PROCESS_STATUS_LABELS[process.status]} · 완료율{" "}
-              {process.completionRate}%
+              {t(`dashboard.processStatus.${process.status}`)} ·{" "}
+              {t("dashboard.line.completionRate", {
+                rate: process.completionRate,
+              })}
             </div>
           </article>
 

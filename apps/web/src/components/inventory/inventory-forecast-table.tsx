@@ -1,4 +1,5 @@
 import { INVENTORY_STATUS_TONES } from "../../constants/inventory";
+import { useTranslation } from "react-i18next";
 import type { InventoryForecastRow } from "../../types/inventory";
 import { DataTable } from "../ui/data-table";
 import { StatusBadge } from "../ui/status-badge";
@@ -9,15 +10,17 @@ interface InventoryForecastTableProps {
 }
 
 export function InventoryForecastTable({ rows }: InventoryForecastTableProps) {
+  const { t } = useTranslation();
+
   return (
     <DataTable>
       <thead>
         <tr>
-          <th>자재</th>
-          <th>현재고</th>
-          <th>2주 내 소요</th>
-          <th>판정</th>
-          <th>제안</th>
+          <th>{t("inventory.columns.material")}</th>
+          <th>{t("inventory.columns.currentStock")}</th>
+          <th>{t("inventory.columns.demand")}</th>
+          <th>{t("inventory.columns.status")}</th>
+          <th>{t("inventory.columns.suggestion")}</th>
         </tr>
       </thead>
 
@@ -25,7 +28,7 @@ export function InventoryForecastTable({ rows }: InventoryForecastTableProps) {
         {rows.length === 0 ? (
           <tr>
             <td className={styles.emptyState} colSpan={5}>
-              표시할 재고 예측이 없습니다.
+              {t("inventory.emptyForecast")}
             </td>
           </tr>
         ) : (
@@ -36,7 +39,7 @@ export function InventoryForecastTable({ rows }: InventoryForecastTableProps) {
               <td className={styles.mono}>{row.demand}</td>
               <td>
                 <StatusBadge tone={INVENTORY_STATUS_TONES[row.status]}>
-                  {row.shortage ?? row.status}
+                  {row.shortage ?? t(`inventory.status.${row.status}`)}
                 </StatusBadge>
               </td>
               <td>{row.suggestion}</td>

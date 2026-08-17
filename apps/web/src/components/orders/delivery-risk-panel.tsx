@@ -8,37 +8,44 @@ interface DeliveryRiskPanelProps {
 }
 
 export function DeliveryRiskPanel({ order }: DeliveryRiskPanelProps) {
+  const { i18n, t } = useTranslation();
+
   if (!order) {
     return (
       <Panel
-        title="납기 역산 경보 로직"
-        subtitle="공정 표준시간 × 잔여 공정으로 지연 위험을 사전 감지"
+        title={t("orders.risk.title")}
+        subtitle={t("orders.risk.subtitle")}
       >
-        <p className={styles.riskCopy}>현재 계산할 진행 수주가 없습니다.</p>
+        <p className={styles.riskCopy}>{t("orders.risk.empty")}</p>
       </Panel>
     );
   }
 
-  const row = presentOrder(order);
+  const row = presentOrder(order, t, i18n.resolvedLanguage);
   const risk = order.deliveryRisk;
 
   const marginText =
     risk.marginDays < 0
-      ? `${Math.abs(risk.marginDays)}일 부족`
-      : `${risk.marginDays}일 여유`;
+      ? t("orders.risk.marginShortage", {
+          count: Math.abs(risk.marginDays),
+        })
+      : t("orders.risk.marginAvailable", { count: risk.marginDays });
 
   return (
-    <Panel
-      title="납기 역산 경보 로직"
-      subtitle="공정 표준시간 × 잔여 공정으로 지연 위험을 사전 감지"
-    >
+    <Panel title={t("orders.risk.title")} subtitle={t("orders.risk.subtitle")}>
       <p className={styles.riskCopy}>
         <span className={styles.mono}>{order.orderNo}</span>
-        {` (${row.product}): 잔여 표준공수 ${risk.remainingStandardHours}시간 → `}
-        {`생산 ${risk.productionDays}일 + 버퍼 ${risk.bufferDays}일 = `}
-        {`최소 ${risk.requiredDays}일 필요. 납기까지 ${risk.availableDays}일 남았으며, `}
-        <strong>현재 계산상 {marginText}입니다.</strong>
+        {` ${t("orders.risk.detail", {
+          product: row.product,
+          remainingHours: risk.remainingStandardHours,
+          productionDays: risk.productionDays,
+          bufferDays: risk.bufferDays,
+          requiredDays: risk.requiredDays,
+          availableDays: risk.availableDays,
+        })} `}
+        <strong>{t("orders.risk.conclusion", { margin: marginText })}</strong>
       </p>
     </Panel>
   );
 }
+import { useTranslation } from "react-i18next";

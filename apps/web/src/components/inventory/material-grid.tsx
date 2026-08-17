@@ -1,6 +1,7 @@
+import { useTranslation } from "react-i18next";
 import type {
   InventoryCardViewModel,
-  InventoryStatus,
+  InventoryStockStatus,
 } from "../../types/inventory";
 import styles from "./inventory-view.module.css";
 
@@ -8,20 +9,22 @@ interface MaterialGridProps {
   materials: InventoryCardViewModel[];
 }
 
-const barStyles: Record<InventoryStatus, string> = {
-  충분: styles.successBar,
-  주의: styles.warningBar,
-  결품: styles.dangerBar,
+const barStyles: Record<InventoryStockStatus, string> = {
+  SUFFICIENT: styles.successBar,
+  LOW: styles.warningBar,
+  SHORTAGE: styles.dangerBar,
 };
 
-const captionStyles: Partial<Record<InventoryStatus, string>> = {
-  주의: styles.warningText,
-  결품: styles.dangerText,
+const captionStyles: Partial<Record<InventoryStockStatus, string>> = {
+  LOW: styles.warningText,
+  SHORTAGE: styles.dangerText,
 };
 
 export function MaterialGrid({ materials }: MaterialGridProps) {
+  const { t } = useTranslation();
+
   if (materials.length === 0) {
-    return <div className={styles.state}>등록된 자재가 없습니다.</div>;
+    return <div className={styles.state}>{t("inventory.emptyMaterials")}</div>;
   }
 
   return (
