@@ -173,6 +173,11 @@ npm run build -w apps/web
 npm run test -w apps/api -- --runInBand
 ```
 
+## 발표 준비
+
+- [6분 데모 가이드](docs/DEMO_GUIDE.md)
+- [기술 면접 Q&A](docs/INTERVIEW_QA.md)
+
 ## MVP 범위
 
 현재 MVP는 로컬 제조 데이터 흐름을 명확하게 시연하기 위해 REST API와 15~30초 polling을 사용합니다. MQTT, WebSocket, TimescaleDB는 필수 요구사항이 아니므로 범위에서 제외했습니다.
