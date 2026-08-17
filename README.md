@@ -4,6 +4,12 @@
 
 이 프로젝트는 단순 모니터링 화면이 아니라 **납기 위험과 자재 부족을 사전에 계산하고, 호기 단위 품질 이력을 추적하는 운영형 MVP**를 목표로 합니다.
 
+## 데모 링크
+
+- Web UI: [http://3.35.241.187](http://3.35.241.187)
+- Swagger API: [http://3.35.241.187/api/docs](http://3.35.241.187/api/docs)
+- Health check: [http://3.35.241.187/api/health](http://3.35.241.187/api/health)
+
 ## 핵심 기능
 
 | 모듈        | 주요 기능                                                               |
@@ -38,6 +44,12 @@ flowchart LR
     end
 ```
 
+## ERD
+
+수주부터 호기, 공정, 자재 LOT, 검사, 시험까지 하나의 흐름으로 추적할 수 있도록 관계형 데이터 모델로 설계했습니다.
+
+![DNS Smart Factory MES ERD](DNS_SMART_FACTORY_ERD.png)
+
 ## 기술 스택
 
 - **Frontend:** Next.js 16, React 19, TypeScript, SWR, i18next, CSS Modules
@@ -45,6 +57,28 @@ flowchart LR
 - **Database:** PostgreSQL 16, Prisma ORM 7, Prisma driver adapter
 - **Workspace:** npm workspaces monorepo
 - **Local infrastructure:** Docker Compose
+
+## 주요 설계 결정
+
+### PostgreSQL 선택 이유
+
+MES 데이터는 수주, 호기, 공정, BOM, 자재 LOT, 검사, 시험 결과가 서로 강하게 연결되어 있으며 데이터 간 정합성과 추적성이 중요합니다. PostgreSQL은 다음 이유로 선택했습니다.
+
+- 외래 키, unique constraint, transaction을 이용해 생산 데이터의 정합성을 보장할 수 있습니다.
+- 수주별 진척률, 공정 실적, 재고 소요량, 품질 이력처럼 여러 테이블을 결합하는 집계 쿼리에 적합합니다.
+- 날짜, 소수점 수량, enum, JSONB 등 MES에서 필요한 데이터 타입을 안정적으로 지원합니다.
+- Docker 환경에서 재현하기 쉽고 Prisma ORM과의 호환성 및 운영 안정성이 좋습니다.
+
+Prisma schema는 도메인별 파일로 분리해 가독성을 높였고, migration과 deterministic seed를 통해 동일한 개발·검증 환경을 다시 만들 수 있도록 구성했습니다.
+
+### 애플리케이션 아키텍처
+
+- Next.js Web, NestJS API, Prisma/PostgreSQL을 npm workspaces 기반 monorepo로 구성했습니다.
+- API는 Dashboard, Orders, Inspections, Inventory, Quality 도메인 모듈로 분리해 각 업무 규칙의 책임을 명확히 했습니다.
+- 납기 위험, 2주 자재 소요량, 부족 수량, 발주 필요일, KPI 집계는 UI가 아니라 서버에서 계산합니다. 따라서 다른 클라이언트가 추가되어도 동일한 규칙을 재사용할 수 있습니다.
+- 수주번호와 호기 ID를 중심으로 자재 LOT, 공정 실적, AI 검사, 시험 결과를 연결해 end-to-end traceability를 구현했습니다.
+- 과제 범위와 복잡도를 고려해 REST API와 SWR polling을 사용했습니다. WebSocket은 현재 구현하지 않았으며, 실제 운영 환경에서 긴급 알림이나 설비 상태를 즉시 전달해야 할 때 확장할 수 있습니다.
+- Frontend는 feature component와 shared UI를 분리하고, API type, formatter, translation resource를 별도 관리해 화면 컴포넌트의 책임을 줄였습니다.
 
 ## 프로젝트 구조
 
@@ -122,6 +156,8 @@ npm run dev:web
 
 Production 구성은 Next.js standalone Web, NestJS API, PostgreSQL, Prisma migration을 각각 독립 container로 실행합니다. API는 DB 연결 health check를 통과한 뒤에만 Web을 시작하며, migration이 실패하면 API가 시작되지 않습니다.
 
+현재 데모는 AWS EC2 Ubuntu 서버에 Docker Compose로 배포했으며, Nginx가 Web과 `/api` 요청을 각각 Next.js와 NestJS container로 reverse proxy합니다. PostgreSQL은 외부에 공개하지 않고 Docker network 내부에서만 접근하도록 구성했습니다.
+
 ```bash
 cp deploy/.env.example deploy/.env
 # deploy/.env의 비밀번호와 공개 URL을 실제 값으로 변경
@@ -192,6 +228,25 @@ npm run lint -w apps/web
 npm run build -w apps/web
 npm run test -w apps/api -- --runInBand
 ```
+
+## AI 도구 활용 내역
+
+평소에는 backend 작업에 Codex, frontend 작업에 Claude를 주로 사용합니다. 이번 과제는 완성된 HTML 화면 시안이 제공되었고 제한된 시간 안에 MES 업무 로직을 정확하게 구현하는 것이 중요하다고 판단해 전체 과정에서 Codex를 중심으로 활용했습니다.
+
+저는 ERP 시스템 개발 경험은 여러 차례 있지만 MES 도메인 경험은 상대적으로 적었습니다. 따라서 구현을 바로 시작하기 전에 제공받은 과제와 HTML 시안을 AI와 함께 분석하며 수주, 호기, 공정, 실적, BOM, 재고, 검사, 시험이 어떻게 연결되는지 먼저 정리했습니다. 이후 다음 항목을 AI와 단계적으로 검토한 뒤 개발을 시작했습니다.
+
+- 과제 요구사항 분해와 MES 용어 및 업무 흐름 이해
+- Database schema와 ERD 관계 설계
+- Next.js, NestJS, Prisma 기반 project architecture와 도메인 경계 정의
+- 납기 위험, 잔여 표준공수, 자재 소요량, 안전재고, 발주 필요일 계산 규칙 정리
+- API contract, aggregation query, 예외 상황과 검증 규칙 검토
+- Docker Compose, Nginx, AWS EC2 기반 배포 구성과 운영 체크리스트 작성
+
+Frontend는 제공받은 HTML을 디자인 기준으로 Codex에 전달해 Next.js React component로 변환했습니다. 이 과정에서 화면을 feature 단위 component로 분리하고 type, API client, formatter, i18n resource, CSS를 별도 책임으로 나누도록 요청했습니다. 생성된 결과는 직접 실행하면서 원본 시안과 비교하고 API 응답, 상태 처리, 한국어/영어 번역을 확인했습니다.
+
+현실적인 데모를 위한 deterministic seed data도 AI의 도움으로 작성했습니다. 수주 10건 이상과 호기별 공정 상태, BOM, 재고 LOT, 검사 및 시험 결과가 서로 일관되게 연결되는지 확인했고, seed를 다시 실행해도 동일한 시나리오가 재현되도록 검증했습니다.
+
+개발 과정에서 저는 backend 구현과 검증에 가장 많은 시간을 사용했습니다. 특히 business logic, 날짜 및 공수 기반 계산식, KPI aggregation, Prisma query, 데이터 정합성, API 응답 구조를 직접 review하고 Swagger와 UI에서 결과를 검증했습니다. AI가 제안한 코드를 그대로 사용하는 방식이 아니라 schema, 계산 근거, query 결과와 edge case를 이해하고 수정한 뒤 반영했습니다.
 
 
 ## MVP 범위
