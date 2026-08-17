@@ -59,6 +59,9 @@ dns_smart_factory/
 ├── packages/
 │   └── db/                   # Prisma schema, migrations, seed, shared client
 ├── docker-compose.yml        # PostgreSQL 16
+├── docker-compose.prod.yml   # Production Web, API, migration, PostgreSQL
+├── Dockerfile.api            # NestJS runtime and database tools images
+├── Dockerfile.web            # Next.js standalone runtime image
 └── package.json              # Workspace commands
 ```
 
@@ -114,6 +117,23 @@ npm run dev:web
 - REST API: [http://localhost:3000/api](http://localhost:3000/api)
 - Swagger: [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
 - Health check: [http://localhost:3000/api/health](http://localhost:3000/api/health)
+
+## Production 배포
+
+Production 구성은 Next.js standalone Web, NestJS API, PostgreSQL, Prisma migration을 각각 독립 container로 실행합니다. API는 DB 연결 health check를 통과한 뒤에만 Web을 시작하며, migration이 실패하면 API가 시작되지 않습니다.
+
+```bash
+cp deploy/.env.example deploy/.env
+# deploy/.env의 비밀번호와 공개 URL을 실제 값으로 변경
+npm run deploy:up
+
+# 데모 데이터가 필요한 최초 1회만 실행
+npm run deploy:seed
+```
+
+`NEXT_PUBLIC_API_URL`은 Web image build 시점에 포함되므로 API 공개 주소가 바뀌면 Web image를 다시 build해야 합니다. 운영 서버에서는 TLS reverse proxy 또는 hosting provider의 HTTPS endpoint를 Web/API 앞에 배치하고 `ENABLE_SWAGGER=false`를 권장합니다.
+
+환경 변수, 외부 DB 사용법, 검증 및 rollback 체크리스트는 [DEPLOYMENT.md](DEPLOYMENT.md)를 참고합니다.
 
 ## 주요 API
 

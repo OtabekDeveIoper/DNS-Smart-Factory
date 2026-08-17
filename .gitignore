@@ -43,6 +43,7 @@ next-env.d.ts
 !.env.example
 !apps/**/.env.example
 !packages/**/.env.example
+!deploy/**/.env.example
 
 # monorepo generated artifacts
 node_modules/

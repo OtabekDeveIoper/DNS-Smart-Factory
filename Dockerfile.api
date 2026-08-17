@@ -1,0 +1,68 @@
+FROM node:22-bookworm-slim AS workspace
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+COPY apps/api/package.json apps/api/package.json
+COPY apps/web/package.json apps/web/package.json
+COPY packages/db/package.json packages/db/package.json
+
+FROM workspace AS api-dependencies
+
+RUN apt-get update \
+  && apt-get install --yes --no-install-recommends openssl \
+  && rm -rf /var/lib/apt/lists/* \
+  && npm ci \
+    --workspace apps/api \
+    --workspace packages/db \
+    --include-workspace-root=false
+
+FROM workspace AS database-tools
+
+RUN apt-get update \
+  && apt-get install --yes --no-install-recommends openssl \
+  && rm -rf /var/lib/apt/lists/* \
+  && npm ci \
+    --workspace packages/db \
+    --include-workspace-root=false
+
+COPY tsconfig.json ./
+COPY packages/db packages/db
+
+RUN npm run db:generate -w packages/db
+
+FROM api-dependencies AS builder
+
+COPY tsconfig.json ./
+COPY packages/db packages/db
+COPY apps/api apps/api
+
+RUN npm run build -w packages/db \
+  && npm run build -w apps/api
+
+FROM workspace AS production-dependencies
+
+RUN npm ci --omit=dev --omit=optional \
+  --workspace apps/api \
+  --workspace packages/db \
+  --include-workspace-root=false
+
+FROM node:22-bookworm-slim AS runner
+
+ENV NODE_ENV=production \
+    PORT=3000
+
+WORKDIR /app
+
+COPY --from=production-dependencies /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/apps/api/package.json ./apps/api/package.json
+COPY --from=builder /app/apps/api/dist ./apps/api/dist
+COPY --from=builder /app/packages/db/package.json ./packages/db/package.json
+COPY --from=builder /app/packages/db/dist ./packages/db/dist
+
+USER node
+
+EXPOSE 3000
+
+CMD ["node", "apps/api/dist/main.js"]

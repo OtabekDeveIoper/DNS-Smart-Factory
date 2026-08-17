@@ -13,17 +13,11 @@
     "db:migrate": "npm run db:migrate -w packages/db",
     "db:deploy": "npm run db:deploy -w packages/db",
     "db:seed": "npm run db:seed -w packages/db",
-    "db:tables": "docker compose exec db psql -U smartops -d smartops -c \"\\dt\""
-  },
-  "dependencies": {
-    "@nestjs/swagger": "^11.4.6",
-    "@prisma/adapter-pg": "^7.9.1",
-    "@prisma/client": "^7.9.1",
-    "dotenv": "^17.4.2",
-    "next": "16.3.1",
-    "pg": "^8.23.0",
-    "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "db:tables": "docker compose exec db psql -U smartops -d smartops -c \"\\dt\"",
+    "deploy:up": "docker compose --env-file deploy/.env -f docker-compose.prod.yml up --build -d --wait",
+    "deploy:down": "docker compose --env-file deploy/.env -f docker-compose.prod.yml down",
+    "deploy:logs": "docker compose --env-file deploy/.env -f docker-compose.prod.yml logs -f api web",
+    "deploy:seed": "docker compose --env-file deploy/.env -f docker-compose.prod.yml --profile tools run --rm seed"
   },
   "devDependencies": {
     "@types/node": "^20",
@@ -34,6 +28,11 @@
     "prisma": "^7.9.1",
     "tsx": "^4.23.12",
     "typescript": "^5"
+  },
+  "overrides": {
+    "@nestjs/swagger": {
+      "js-yaml": "5.2.2"
+    }
   },
   "main": "index.js",
   "repository": {
