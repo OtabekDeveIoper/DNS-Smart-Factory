@@ -41,6 +41,8 @@ yarn-error.log*
 next-env.d.ts
 
 !.env.example
+!apps/**/.env.example
+!packages/**/.env.example
 
 # monorepo generated artifacts
 node_modules/
