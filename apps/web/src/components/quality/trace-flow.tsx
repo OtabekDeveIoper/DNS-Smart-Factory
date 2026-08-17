@@ -1,17 +1,25 @@
-import { TRACE_STEPS } from "../../data/quality.mock";
 import styles from "./quality-view.module.css";
 
-export function TraceFlow() {
+interface TraceFlowProps {
+  steps: string[];
+}
+
+export function TraceFlow({ steps }: TraceFlowProps) {
+  if (steps.length === 0) {
+    return <div className={styles.state}>표시할 추적 이력이 없습니다.</div>;
+  }
+
   return (
     <div className={styles.traceFlow}>
-      {TRACE_STEPS.map((step, index) => (
-        <div className={styles.traceGroup} key={step}>
+      {steps.map((step, index) => (
+        <div className={styles.traceGroup} key={`${step}-${index}`}>
           <span
             className={index === 0 ? styles.highlightedStep : styles.traceStep}
           >
             {step}
           </span>
-          {index < TRACE_STEPS.length - 1 ? <em>→</em> : null}
+
+          {index < steps.length - 1 ? <em>→</em> : null}
         </div>
       ))}
     </div>

@@ -37,3 +37,52 @@
   font-size: 12.5px;
   line-height: 1.6;
 }
+
+.orderField {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.orderField > span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.orderField select {
+  width: min(100%, 420px);
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface-raised);
+  color: var(--text);
+  font: 12px var(--font-mono);
+}
+
+.orderField select:focus {
+  border-color: var(--yellow);
+  outline: none;
+}
+
+.orderField select:disabled {
+  opacity: 0.55;
+}
+
+.state {
+  min-height: 160px;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.errorState {
+  color: var(--red);
+}
+
+.emptyState {
+  height: 140px;
+  text-align: center;
+  color: var(--dim);
+}
