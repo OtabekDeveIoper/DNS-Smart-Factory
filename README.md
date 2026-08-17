@@ -193,10 +193,6 @@ npm run build -w apps/web
 npm run test -w apps/api -- --runInBand
 ```
 
-## 발표 준비
-
-- [6분 데모 가이드](docs/DEMO_GUIDE.md)
-- [기술 면접 Q&A](docs/INTERVIEW_QA.md)
 
 ## MVP 범위
 
