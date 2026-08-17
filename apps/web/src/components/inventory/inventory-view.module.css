@@ -1,0 +1,66 @@
+.view {
+  display: grid;
+  gap: 14px;
+}
+.materialGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+.materialCard {
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--surface-raised);
+}
+.materialCard > span {
+  font-size: 13px;
+}
+.materialCard strong {
+  display: block;
+  margin: 2px 0;
+  font: 500 18px var(--font-mono);
+}
+.materialCard small {
+  margin-left: 4px;
+  color: var(--dim);
+  font-size: 10px;
+}
+.progressTrack {
+  height: 7px;
+  margin-top: 6px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--surface-deep);
+}
+.progressTrack span {
+  height: 100%;
+  display: block;
+  border-radius: 4px;
+}
+.successBar {
+  background: var(--green);
+}
+.warningBar {
+  background: var(--yellow);
+}
+.dangerBar {
+  background: var(--red);
+}
+.materialCard p {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.warningText {
+  color: var(--yellow) !important;
+}
+.dangerText {
+  color: var(--red) !important;
+}
+.mono {
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}

@@ -1,134 +1,94 @@
 "use client";
 
-import { formatTime } from "@/lib/helpers";
-import {
-  LayoutDashboard,
-  ListChecks,
-  PackageSearch,
-  ScanLine,
-  ShieldCheck,
-} from "lucide-react";
-import { useEffect, useState, type ComponentType } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { NAVIGATION_ITEMS } from "../../constants/navigation";
+import { formatTime } from "../../lib/helpers";
+import type { AppTabId } from "../../types/navigation";
 import { DashboardPanel } from "../dashboard/dashboard-panel";
+import { InspectionView } from "../inspection/inspection-view";
+import { InventoryView } from "../inventory/inventory-view";
+import { OrdersView } from "../orders/orders-view";
+import { QualityView } from "../quality/quality-view";
+import styles from "./smart-ops-app.module.css";
+
+const views: Record<AppTabId, ReactNode> = {
+  dashboard: <DashboardPanel />,
+  orders: <OrdersView />,
+  inspection: <InspectionView />,
+  inventory: <InventoryView />,
+  quality: <QualityView />,
+};
 
 export function SmartOpsApp() {
+  const [activeTab, setActiveTab] = useState<AppTabId>("dashboard");
   const [clock, setClock] = useState<Date | null>(null);
-  const [activeTab, setActiveTab] = useState<TabId>("dashboard");
 
   useEffect(() => {
-    setClock(new Date());
+    const updateClock = () => setClock(new Date());
+    const initialTick = window.setTimeout(updateClock, 0);
+    const timer = window.setInterval(updateClock, 1_000);
 
-    const timer = window.setInterval(() => {
-      setClock(new Date());
-    }, 1_000);
-
-    return () => window.clearInterval(timer);
+    return () => {
+      window.clearTimeout(initialTick);
+      window.clearInterval(timer);
+    };
   }, []);
 
-  const selectedTab = tabs.find((tab) => tab.id === activeTab) ?? tabs[0];
-  const SelectedIcon = selectedTab.icon;
-
   return (
-    <div className="app-frame">
-      <header className="app-bar">
-        <div className="brand">
-          <div className="brand-mark">DN</div>
-
+    <div className={styles.appFrame}>
+      <header className={styles.appBar}>
+        <div className={styles.brand}>
+          <div className={styles.brandMark}>DN</div>
           <div>
-            <strong>DN SMART OPS</strong>
-            <span>Smart Factory MES</span>
+            <strong>DN전기 SMART OPS</strong>
+            <span>IoT · MES · AI 통합 관제 — 과제용 시안</span>
           </div>
         </div>
-
-        <div className="app-meta">
-          <span className="connection-badge">
-            <span className="live-dot" />
-            API CONNECTED
+        <div className={styles.appMeta}>
+          <span className={styles.levelBadge}>
+            생산정보 실시간 수집·분석 시스템
           </span>
-
+          <span className={styles.connectionBadge}>
+            <span className={styles.liveDot} />
+            수집 게이트웨이 OPC-UA 정상
+          </span>
           <time>
             {clock ? formatTime(clock.toISOString()) : "--/--, --:--:--"}
           </time>
-
-          <span className="demo-badge">DEMO</span>
+          <span className={styles.demoBadge}>DEMO · 시연용 샘플 데이터</span>
         </div>
       </header>
 
-      <nav className="tab-bar" aria-label="MES modules">
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          const isActive = tab.id === activeTab;
-
+      <nav className={styles.tabBar} role="tablist" aria-label="시스템 모듈">
+        {NAVIGATION_ITEMS.map((item) => {
+          const Icon = item.icon;
+          const selected = item.id === activeTab;
           return (
             <button
               type="button"
-              key={tab.id}
-              className={isActive ? "active" : undefined}
-              aria-current={isActive ? "page" : undefined}
-              onClick={() => setActiveTab(tab.id)}
+              role="tab"
+              aria-selected={selected}
+              className={selected ? styles.activeTab : undefined}
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
             >
-              <span className="tab-number">{tab.number}</span>
-              <Icon size={16} />
-              <span>{tab.label}</span>
+              <span className={styles.tabNumber}>{item.number}</span>
+              <Icon size={15} />
+              <span>{item.label}</span>
             </button>
           );
         })}
       </nav>
 
-      <main className="main-content">
-        {activeTab === "dashboard" ? (
-          <section>
-            <DashboardPanel />
-          </section>
-        ) : (
-          <section className="pending-view">
-            <SelectedIcon size={30} /> <h2>{selectedTab.label}</h2>
-            <span>MES data workspace</span>
-          </section>
-        )}
+      <main className={styles.mainContent} role="tabpanel">
+        {views[activeTab]}
       </main>
+
+      <footer className={styles.footer}>
+        본 화면은 채용 과제용 시스템 시안(DEMO)이며, 회사명·수치·수주정보는 모두
+        가상의 샘플 데이터입니다 · 표준 참고: OPC-UA(IEC 62541) / AAS(IEC 63278)
+        · ㈜에이비에이치(ABH)
+      </footer>
     </div>
   );
 }
-
-type TabId = "dashboard" | "orders" | "inspection" | "inventory" | "quality";
-
-interface Tab {
-  id: TabId;
-  number: string;
-  label: string;
-  icon: ComponentType<{ size?: number }>;
-}
-
-const tabs: Tab[] = [
-  {
-    id: "dashboard",
-    number: "01",
-    label: "Integrated Control",
-    icon: LayoutDashboard,
-  },
-  {
-    id: "orders",
-    number: "02",
-    label: "Orders & Progress",
-    icon: ListChecks,
-  },
-  {
-    id: "inspection",
-    number: "03",
-    label: "AI Wiring Inspection",
-    icon: ScanLine,
-  },
-  {
-    id: "inventory",
-    number: "04",
-    label: "Materials & Inventory",
-    icon: PackageSearch,
-  },
-  {
-    id: "quality",
-    number: "05",
-    label: "Tests & Traceability",
-    icon: ShieldCheck,
-  },
-];

@@ -1,0 +1,30 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font: 10.5px var(--font-mono);
+  white-space: nowrap;
+}
+
+.success {
+  background: rgb(66 189 123 / 14%);
+  color: var(--green);
+}
+.warning {
+  background: rgb(233 181 11 / 14%);
+  color: var(--yellow);
+}
+.danger {
+  background: rgb(227 99 75 / 14%);
+  color: var(--red);
+}
+.info {
+  background: rgb(85 148 220 / 14%);
+  color: var(--blue);
+}
+.muted {
+  background: rgb(100 112 123 / 20%);
+  color: var(--muted);
+}

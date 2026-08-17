@@ -1,0 +1,35 @@
+.view {
+  display: grid;
+  gap: 14px;
+}
+.mono {
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+.progressTrack {
+  width: 120px;
+  height: 7px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--surface-deep);
+}
+.progressTrack span {
+  height: 100%;
+  display: block;
+  border-radius: 4px;
+}
+.normalProgress {
+  background: var(--blue);
+}
+.warningProgress {
+  background: var(--yellow);
+}
+.riskCopy {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.riskCopy strong {
+  color: var(--yellow);
+  font-weight: 500;
+}

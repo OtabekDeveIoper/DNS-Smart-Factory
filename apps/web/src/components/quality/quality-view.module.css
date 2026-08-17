@@ -1,0 +1,39 @@
+.view {
+  display: grid;
+  gap: 14px;
+}
+.mono {
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+.traceFlow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12.5px;
+}
+.traceGroup {
+  display: contents;
+}
+.traceGroup em {
+  color: var(--dim);
+  font: normal 12px var(--font-mono);
+}
+.traceStep,
+.highlightedStep {
+  padding: 7px 11px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface-raised);
+}
+.highlightedStep {
+  border-color: rgb(233 181 11 / 55%);
+  font-family: var(--font-mono);
+}
+.traceNote {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.6;
+}

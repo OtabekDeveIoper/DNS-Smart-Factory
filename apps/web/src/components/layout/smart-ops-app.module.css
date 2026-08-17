@@ -1,0 +1,208 @@
+.appFrame {
+  min-height: 100vh;
+}
+
+.appBar {
+  min-height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 12px 24px;
+  border-bottom: 2px solid var(--yellow);
+  background: #14181c;
+}
+
+.brand {
+  min-width: 230px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brandMark {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border: 2px solid var(--yellow);
+  border-radius: 5px;
+  background: var(--surface-deep);
+  color: var(--yellow);
+  font: 600 15px var(--font-mono);
+}
+
+.brand strong,
+.brand span {
+  display: block;
+}
+
+.brand strong {
+  font-size: 16px;
+}
+
+.brand span {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.appMeta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  color: var(--muted);
+  font: 12px var(--font-mono);
+}
+
+.connectionBadge,
+.levelBadge,
+.demoBadge {
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 9px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.levelBadge {
+  border-color: rgb(85 148 220 / 50%);
+  color: var(--blue);
+}
+
+.demoBadge {
+  border-color: var(--yellow);
+  background: var(--yellow);
+  color: #151719;
+  font-weight: 700;
+}
+
+.liveDot {
+  width: 7px;
+  height: 7px;
+  display: inline-block;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 3px rgb(66 189 123 / 12%);
+}
+
+.tabBar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border);
+  background: rgb(17 20 24 / 96%);
+  scrollbar-width: thin;
+}
+
+.tabBar button {
+  height: 51px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: 0 0 auto;
+  padding: 0 14px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tabBar button:hover {
+  background: rgb(255 255 255 / 2%);
+  color: var(--text);
+}
+
+.tabBar button.activeTab {
+  border-bottom-color: var(--yellow);
+  color: var(--text);
+}
+
+.tabNumber {
+  color: var(--dim);
+  font: 10px var(--font-mono);
+}
+
+.mainContent {
+  width: min(100%, 1440px);
+  margin: 0 auto;
+  padding: 20px 24px 56px;
+}
+
+.footer {
+  padding: 14px 22px;
+  border-top: 1px solid var(--border);
+  color: var(--dim);
+  font-size: 11.5px;
+  text-align: center;
+}
+
+.pendingView {
+  min-height: 420px;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--dim);
+}
+
+.pendingView h2 {
+  margin-top: 12px;
+  color: var(--text);
+  font-size: 16px;
+}
+
+.pendingView span {
+  margin-top: 4px;
+  font-size: 11px;
+}
+
+@media (max-width: 720px) {
+  .appBar {
+    align-items: flex-start;
+    padding: 11px 14px;
+  }
+
+  .appMeta time,
+  .levelBadge,
+  .connectionBadge {
+    display: none;
+  }
+
+  .tabBar {
+    padding: 0 8px;
+  }
+
+  .tabBar button {
+    padding: 0 10px;
+  }
+
+  .tabBar button svg {
+    display: none;
+  }
+
+  .mainContent {
+    padding: 14px 12px 40px;
+  }
+}
+
+@media (max-width: 430px) {
+  .brand span,
+  .demoBadge {
+    display: none;
+  }
+}
