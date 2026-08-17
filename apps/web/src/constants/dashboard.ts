@@ -6,7 +6,7 @@ import {
   RotateCcw,
   type LucideIcon,
 } from "lucide-react";
-import type { DashboardKpis } from "../types/dashboard";
+import type { DashboardKpis, ProcessLineItem } from "../types/dashboard";
 
 interface KpiDefinition {
   key: keyof Omit<DashboardKpis, "generatedAt">;
@@ -60,10 +60,9 @@ export const KPI_DEFINITIONS: KpiDefinition[] = [
   },
 ];
 
-export const PROCESS_DETAILS: Record<string, string> = {
-  SHEET_METAL: "RUN · CNC #2 가동",
-  PAINTING: "RUN · 건조로 78℃",
-  ASSEMBLY: "RUN",
-  WIRING: "지연주의 · DN-014",
-  TESTING: "RUN · AI검사 연동",
-};
+export const PROCESS_STATUS_LABELS: Record<ProcessLineItem["status"], string> =
+  {
+    RUNNING: "가동",
+    BLOCKED: "지연주의",
+    IDLE: "대기",
+  };

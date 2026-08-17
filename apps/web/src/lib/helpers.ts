@@ -9,3 +9,12 @@ export function formatTime(value: string) {
     hour12: false,
   }).format(new Date(value));
 }
+
+const koreanWeekdayFormatter = new Intl.DateTimeFormat("ko-KR", {
+  weekday: "short",
+  timeZone: "Asia/Seoul",
+});
+
+export function formatKoreanWeekday(date: string) {
+  return koreanWeekdayFormatter.format(new Date(`${date}T00:00:00+09:00`));
+}
