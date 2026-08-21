@@ -49,3 +49,10 @@ enum EquipmentStatus {
   MAINTENANCE
   RETIRED
 }
+
+enum UserStatus {
+  INVITED
+  ACTIVE
+  SUSPENDED
+  DISABLED
+}

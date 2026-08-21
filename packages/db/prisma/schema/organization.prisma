@@ -8,6 +8,7 @@ model Organization {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   plants Plant[]
+  roles Role[]
 
   @@unique([code])
   @@map("organizations")
@@ -26,6 +27,7 @@ model Plant {
 
   organization Organization @relation(fields: [organizationId], references: [id])
   areas        Area[]
+  userPlantRoles UserPlantRole[]
 
   @@unique([organizationId, code])
   @@index([organizationId])

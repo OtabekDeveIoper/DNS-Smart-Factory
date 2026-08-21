@@ -1,0 +1,76 @@
+model User {
+  id           String     @id @default(uuid()) @db.Uuid
+  email        String     @unique @db.VarChar(320)
+  passwordHash String?    @map("password_hash") @db.Text
+  displayName  String     @map("display_name") @db.VarChar(150)
+  employeeNo   String?    @map("employee_no") @db.VarChar(80)
+  status       UserStatus @default(INVITED)
+  locale       String     @default("ko") @db.VarChar(10)
+  lastLoginAt  DateTime?  @map("last_login_at")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  plantRoles UserPlantRole[]
+
+  @@index([status])
+  @@map("users")
+}
+
+model Role {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String?  @map("organization_id") @db.Uuid
+  code           String   @db.VarChar(80)
+  name           String   @db.VarChar(150)
+  isSystem       Boolean  @default(false) @map("is_system")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  permissions  RolePermission[]
+  plantRoles   UserPlantRole[]
+
+  @@unique([organizationId, code])
+  @@index([organizationId])
+  @@map("roles")
+}
+
+model Permission {
+  id          String @id @default(uuid()) @db.Uuid
+  code        String @unique @db.VarChar(120)
+  description String @db.Text
+
+  roles RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       String @map("role_id") @db.Uuid
+  permissionId String @map("permission_id") @db.Uuid
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model UserPlantRole {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  plantId   String    @map("plant_id") @db.Uuid
+  roleId    String    @map("role_id") @db.Uuid
+  isActive  Boolean   @default(true) @map("is_active")
+  validFrom DateTime? @map("valid_from")
+  validUntil DateTime? @map("valid_until")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user  User  @relation(fields: [userId], references: [id])
+  plant Plant @relation(fields: [plantId], references: [id])
+  role  Role  @relation(fields: [roleId], references: [id])
+
+  @@unique([userId, plantId, roleId])
+  @@index([plantId, userId])
+  @@index([userId, isActive])
+  @@map("user_plant_roles")
+}
