@@ -42,3 +42,10 @@ enum MaterialUnit {
   M2
   SET
 }
+
+enum EquipmentStatus {
+  ACTIVE
+  INACTIVE
+  MAINTENANCE
+  RETIRED
+}
