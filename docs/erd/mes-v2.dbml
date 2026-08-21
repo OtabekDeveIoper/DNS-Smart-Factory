@@ -1,0 +1,1178 @@
+Project DNS_Smart_Factory_MES_V2 {
+  database_type: "PostgreSQL"
+  Note: "Production-grade discrete manufacturing MES. Timescale hypertables are marked in table notes."
+}
+
+Enum user_status {
+  INVITED
+  ACTIVE
+  SUSPENDED
+  DISABLED
+}
+
+Enum revision_status {
+  DRAFT
+  PUBLISHED
+  RETIRED
+}
+
+Enum work_order_status {
+  DRAFT
+  PLANNED
+  RELEASED
+  IN_PROGRESS
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+Enum unit_status {
+  CREATED
+  READY
+  IN_PROGRESS
+  QUALITY_HOLD
+  REWORK
+  COMPLETED
+  SCRAPPED
+  CANCELLED
+}
+
+Enum unit_operation_status {
+  PENDING
+  READY
+  IN_PROGRESS
+  PAUSED
+  BLOCKED
+  COMPLETED
+  REWORK_REQUIRED
+  SKIPPED
+  CANCELLED
+}
+
+Enum equipment_status {
+  ACTIVE
+  INACTIVE
+  MAINTENANCE
+  RETIRED
+}
+
+Enum inventory_transaction_type {
+  GOODS_RECEIPT
+  RESERVATION
+  RESERVATION_RELEASE
+  ISSUE_TO_PRODUCTION
+  RETURN_FROM_PRODUCTION
+  TRANSFER_IN
+  TRANSFER_OUT
+  ADJUSTMENT_IN
+  ADJUSTMENT_OUT
+  SCRAP
+}
+
+Enum reservation_status {
+  ACTIVE
+  PARTIALLY_ISSUED
+  ISSUED
+  RELEASED
+  CANCELLED
+}
+
+Enum inspection_result {
+  PENDING
+  PASS
+  FAIL
+  REWORK_REQUIRED
+  CANCELLED
+}
+
+Enum non_conformance_status {
+  OPEN
+  UNDER_REVIEW
+  DISPOSITIONED
+  CLOSED
+  CANCELLED
+}
+
+Enum disposition_type {
+  REWORK
+  SCRAP
+  USE_AS_IS
+  RETURN_TO_SUPPLIER
+}
+
+Enum ai_job_status {
+  PENDING
+  PROCESSING
+  SUCCEEDED
+  RETRY_SCHEDULED
+  FAILED
+  CANCELLED
+}
+
+Enum ai_recommendation {
+  PASS_SUGGESTED
+  FAIL_SUGGESTED
+  REVIEW_REQUIRED
+}
+
+Enum outbox_status {
+  PENDING
+  PROCESSING
+  PUBLISHED
+  FAILED
+}
+
+Enum severity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+Table organizations {
+  id uuid [pk]
+  code varchar(50) [not null, unique]
+  name varchar(200) [not null]
+  timezone varchar(50) [not null, default: "Asia/Seoul"]
+  is_active boolean [not null, default: true]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table plants {
+  id uuid [pk]
+  organization_id uuid [not null]
+  code varchar(50) [not null]
+  name varchar(200) [not null]
+  timezone varchar(50) [not null, default: "Asia/Seoul"]
+  address text
+  is_active boolean [not null, default: true]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (organization_id, code) [unique]
+  }
+}
+
+Table areas {
+  id uuid [pk]
+  plant_id uuid [not null]
+  code varchar(50) [not null]
+  name varchar(200) [not null]
+  is_active boolean [not null, default: true]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (plant_id, code) [unique]
+  }
+}
+
+Table production_lines {
+  id uuid [pk]
+  area_id uuid [not null]
+  code varchar(50) [not null]
+  name varchar(200) [not null]
+  is_active boolean [not null, default: true]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (area_id, code) [unique]
+  }
+}
+
+Table work_centers {
+  id uuid [pk]
+  production_line_id uuid [not null]
+  code varchar(50) [not null]
+  name varchar(200) [not null]
+  capacity decimal(12,3) [not null, default: 1]
+  capacity_unit varchar(30) [not null, default: "UNIT"]
+  is_active boolean [not null, default: true]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (production_line_id, code) [unique]
+  }
+}
+
+Table equipment {
+  id uuid [pk]
+  work_center_id uuid [not null]
+  code varchar(80) [not null]
+  name varchar(200) [not null]
+  equipment_type varchar(80) [not null]
+  status equipment_status [not null, default: "ACTIVE"]
+  mqtt_node_id varchar(200)
+  metadata jsonb
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (work_center_id, code) [unique]
+    mqtt_node_id
+  }
+}
+
+Table shift_definitions {
+  id uuid [pk]
+  plant_id uuid [not null]
+  code varchar(50) [not null]
+  name varchar(100) [not null]
+  start_time time [not null]
+  end_time time [not null]
+  crosses_midnight boolean [not null, default: false]
+  is_active boolean [not null, default: true]
+
+  indexes {
+    (plant_id, code) [unique]
+  }
+}
+
+Table work_calendar_days {
+  id uuid [pk]
+  plant_id uuid [not null]
+  shift_definition_id uuid
+  work_date date [not null]
+  is_working_day boolean [not null]
+  available_minutes integer [not null, default: 0]
+  note text
+
+  indexes {
+    (plant_id, shift_definition_id, work_date) [unique]
+  }
+}
+
+Table users {
+  id uuid [pk]
+  email varchar(320) [not null, unique]
+  password_hash text
+  display_name varchar(150) [not null]
+  employee_no varchar(80)
+  status user_status [not null, default: "INVITED"]
+  locale varchar(10) [not null, default: "ko"]
+  last_login_at timestamptz
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table roles {
+  id uuid [pk]
+  organization_id uuid
+  code varchar(80) [not null]
+  name varchar(150) [not null]
+  is_system boolean [not null, default: false]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (organization_id, code) [unique]
+  }
+}
+
+Table permissions {
+  id uuid [pk]
+  code varchar(120) [not null, unique]
+  description text [not null]
+}
+
+Table role_permissions {
+  role_id uuid [not null]
+  permission_id uuid [not null]
+
+  indexes {
+    (role_id, permission_id) [pk]
+  }
+}
+
+Table user_plant_roles {
+  id uuid [pk]
+  user_id uuid [not null]
+  plant_id uuid [not null]
+  role_id uuid [not null]
+  is_active boolean [not null, default: true]
+  valid_from timestamptz
+  valid_until timestamptz
+  created_at timestamptz [not null]
+
+  indexes {
+    (user_id, plant_id, role_id) [unique]
+    (plant_id, user_id)
+  }
+}
+
+Table customers {
+  id uuid [pk]
+  organization_id uuid [not null]
+  code varchar(80) [not null]
+  name varchar(200) [not null]
+  contact_name varchar(150)
+  email varchar(320)
+  phone varchar(50)
+  is_active boolean [not null, default: true]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (organization_id, code) [unique]
+  }
+}
+
+Table products {
+  id uuid [pk]
+  organization_id uuid [not null]
+  code varchar(80) [not null]
+  name varchar(200) [not null]
+  product_type varchar(80) [not null]
+  is_active boolean [not null, default: true]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (organization_id, code) [unique]
+  }
+}
+
+Table product_revisions {
+  id uuid [pk]
+  product_id uuid [not null]
+  revision varchar(50) [not null]
+  status revision_status [not null, default: "DRAFT"]
+  model_name varchar(150)
+  description text
+  effective_from date
+  effective_until date
+  published_at timestamptz
+  published_by_user_id uuid
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (product_id, revision) [unique]
+  }
+}
+
+Table materials {
+  id uuid [pk]
+  organization_id uuid [not null]
+  code varchar(80) [not null]
+  name varchar(200) [not null]
+  specification text
+  category varchar(100) [not null]
+  base_unit varchar(30) [not null]
+  lead_time_days integer [not null, default: 0]
+  safety_stock decimal(14,3) [not null, default: 0]
+  lot_controlled boolean [not null, default: true]
+  serial_controlled boolean [not null, default: false]
+  shelf_life_days integer
+  is_active boolean [not null, default: true]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (organization_id, code) [unique]
+  }
+}
+
+Table bom_revisions {
+  id uuid [pk]
+  product_revision_id uuid [not null]
+  revision varchar(50) [not null]
+  status revision_status [not null, default: "DRAFT"]
+  published_at timestamptz
+  published_by_user_id uuid
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (product_revision_id, revision) [unique]
+  }
+}
+
+Table bom_items {
+  id uuid [pk]
+  bom_revision_id uuid [not null]
+  material_id uuid [not null]
+  line_no integer [not null]
+  quantity_per_unit decimal(14,3) [not null]
+  scrap_rate decimal(7,4) [not null, default: 0]
+  issue_operation_sequence integer
+  is_optional boolean [not null, default: false]
+  notes text
+
+  indexes {
+    (bom_revision_id, line_no) [unique]
+    (bom_revision_id, material_id)
+  }
+}
+
+Table operation_definitions {
+  id uuid [pk]
+  organization_id uuid [not null]
+  code varchar(80) [not null]
+  name varchar(200) [not null]
+  description text
+  default_standard_minutes integer [not null]
+  is_active boolean [not null, default: true]
+
+  indexes {
+    (organization_id, code) [unique]
+  }
+}
+
+Table routing_revisions {
+  id uuid [pk]
+  product_revision_id uuid [not null]
+  revision varchar(50) [not null]
+  status revision_status [not null, default: "DRAFT"]
+  published_at timestamptz
+  published_by_user_id uuid
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (product_revision_id, revision) [unique]
+  }
+}
+
+Table routing_operations {
+  id uuid [pk]
+  routing_revision_id uuid [not null]
+  operation_definition_id uuid [not null]
+  default_work_center_id uuid
+  sequence integer [not null]
+  standard_minutes integer [not null]
+  setup_minutes integer [not null, default: 0]
+  is_mandatory boolean [not null, default: true]
+  requires_quality_gate boolean [not null, default: false]
+  instructions text
+
+  indexes {
+    (routing_revision_id, sequence) [unique]
+  }
+}
+
+Table routing_operation_predecessors {
+  routing_operation_id uuid [not null]
+  predecessor_operation_id uuid [not null]
+
+  indexes {
+    (routing_operation_id, predecessor_operation_id) [pk]
+  }
+}
+
+Table sales_orders {
+  id uuid [pk]
+  organization_id uuid [not null]
+  customer_id uuid [not null]
+  order_no varchar(100) [not null]
+  order_date date [not null]
+  status varchar(40) [not null]
+  customer_reference varchar(150)
+  notes text
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (organization_id, order_no) [unique]
+    (customer_id, order_date)
+  }
+}
+
+Table sales_order_lines {
+  id uuid [pk]
+  sales_order_id uuid [not null]
+  line_no integer [not null]
+  product_revision_id uuid [not null]
+  ordered_quantity integer [not null]
+  due_date date [not null]
+  notes text
+
+  indexes {
+    (sales_order_id, line_no) [unique]
+  }
+}
+
+Table work_orders {
+  id uuid [pk]
+  plant_id uuid [not null]
+  sales_order_line_id uuid
+  product_revision_id uuid [not null]
+  bom_revision_id uuid [not null]
+  routing_revision_id uuid [not null]
+  work_order_no varchar(100) [not null]
+  quantity integer [not null]
+  status work_order_status [not null, default: "DRAFT"]
+  priority integer [not null, default: 100]
+  planned_start_at timestamptz
+  planned_end_at timestamptz
+  actual_start_at timestamptz
+  actual_end_at timestamptz
+  hold_reason text
+  version integer [not null, default: 1]
+  created_by_user_id uuid [not null]
+  released_by_user_id uuid
+  released_at timestamptz
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (plant_id, work_order_no) [unique]
+    (plant_id, status, planned_start_at)
+  }
+}
+
+Table work_order_operations {
+  id uuid [pk]
+  work_order_id uuid [not null]
+  routing_operation_id uuid [not null]
+  work_center_id uuid [not null]
+  sequence integer [not null]
+  operation_code varchar(80) [not null]
+  operation_name varchar(200) [not null]
+  planned_start_at timestamptz
+  planned_end_at timestamptz
+  standard_minutes integer [not null]
+  status varchar(40) [not null]
+  version integer [not null, default: 1]
+
+  indexes {
+    (work_order_id, sequence) [unique]
+    (work_center_id, status, planned_start_at)
+  }
+}
+
+Table units {
+  id uuid [pk]
+  work_order_id uuid [not null]
+  serial_no varchar(120) [not null, unique]
+  unit_number integer [not null]
+  status unit_status [not null, default: "CREATED"]
+  current_operation_sequence integer
+  started_at timestamptz
+  completed_at timestamptz
+  version integer [not null, default: 1]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (work_order_id, unit_number) [unique]
+    (work_order_id, status)
+  }
+}
+
+Table unit_operations {
+  id uuid [pk]
+  unit_id uuid [not null]
+  work_order_operation_id uuid [not null]
+  rework_of_operation_id uuid
+  attempt_no integer [not null, default: 1]
+  status unit_operation_status [not null, default: "PENDING"]
+  assigned_equipment_id uuid
+  started_by_user_id uuid
+  completed_by_user_id uuid
+  started_at timestamptz
+  completed_at timestamptz
+  good_quantity decimal(14,3) [not null, default: 0]
+  defect_quantity decimal(14,3) [not null, default: 0]
+  block_reason_code varchar(80)
+  notes text
+  version integer [not null, default: 1]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (unit_id, work_order_operation_id, attempt_no) [unique]
+    (status, started_at)
+  }
+}
+
+Table production_events {
+  id uuid [pk]
+  plant_id uuid [not null]
+  work_order_id uuid
+  unit_id uuid
+  unit_operation_id uuid
+  event_type varchar(120) [not null]
+  event_version integer [not null, default: 1]
+  actor_user_id uuid
+  reason_code varchar(80)
+  payload jsonb
+  correlation_id uuid [not null]
+  occurred_at timestamptz [not null]
+
+  indexes {
+    (unit_id, occurred_at)
+    (work_order_id, occurred_at)
+    (event_type, occurred_at)
+  }
+}
+
+Table warehouses {
+  id uuid [pk]
+  plant_id uuid [not null]
+  code varchar(80) [not null]
+  name varchar(200) [not null]
+  is_active boolean [not null, default: true]
+
+  indexes {
+    (plant_id, code) [unique]
+  }
+}
+
+Table storage_locations {
+  id uuid [pk]
+  warehouse_id uuid [not null]
+  code varchar(100) [not null]
+  name varchar(200) [not null]
+  location_type varchar(50) [not null]
+  is_active boolean [not null, default: true]
+
+  indexes {
+    (warehouse_id, code) [unique]
+  }
+}
+
+Table material_lots {
+  id uuid [pk]
+  material_id uuid [not null]
+  plant_id uuid [not null]
+  lot_no varchar(120) [not null]
+  supplier_code varchar(100)
+  supplier_lot_no varchar(120)
+  received_at timestamptz [not null]
+  manufactured_at date
+  expires_at date
+  quality_status varchar(40) [not null]
+  created_at timestamptz [not null]
+
+  indexes {
+    (plant_id, lot_no) [unique]
+    (material_id, expires_at)
+  }
+}
+
+Table inventory_transactions {
+  id uuid [pk]
+  plant_id uuid [not null]
+  material_id uuid [not null]
+  material_lot_id uuid
+  storage_location_id uuid [not null]
+  transaction_type inventory_transaction_type [not null]
+  quantity decimal(14,3) [not null]
+  unit varchar(30) [not null]
+  reference_type varchar(80)
+  reference_id uuid
+  work_order_id uuid
+  unit_id uuid
+  actor_user_id uuid
+  idempotency_key varchar(200) [not null, unique]
+  correlation_id uuid [not null]
+  occurred_at timestamptz [not null]
+  notes text
+
+  indexes {
+    (material_lot_id, occurred_at)
+    (storage_location_id, material_id, occurred_at)
+    (work_order_id, occurred_at)
+  }
+}
+
+Table material_reservations {
+  id uuid [pk]
+  work_order_id uuid [not null]
+  material_id uuid [not null]
+  material_lot_id uuid
+  storage_location_id uuid
+  required_quantity decimal(14,3) [not null]
+  reserved_quantity decimal(14,3) [not null]
+  issued_quantity decimal(14,3) [not null, default: 0]
+  status reservation_status [not null, default: "ACTIVE"]
+  required_at timestamptz [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (work_order_id, material_id)
+    (material_lot_id, status)
+  }
+}
+
+Table material_consumptions {
+  id uuid [pk]
+  inventory_transaction_id uuid [not null, unique]
+  work_order_id uuid [not null]
+  unit_id uuid
+  unit_operation_id uuid
+  material_id uuid [not null]
+  material_lot_id uuid [not null]
+  quantity decimal(14,3) [not null]
+  consumed_by_user_id uuid [not null]
+  consumed_at timestamptz [not null]
+
+  indexes {
+    (unit_id, consumed_at)
+    (material_lot_id, consumed_at)
+  }
+}
+
+Table inspection_plans {
+  id uuid [pk]
+  organization_id uuid [not null]
+  product_revision_id uuid
+  routing_operation_id uuid
+  code varchar(100) [not null]
+  name varchar(200) [not null]
+  revision varchar(50) [not null]
+  status revision_status [not null, default: "DRAFT"]
+  inspection_type varchar(80) [not null]
+  published_at timestamptz
+  published_by_user_id uuid
+
+  indexes {
+    (organization_id, code, revision) [unique]
+  }
+}
+
+Table inspection_plan_items {
+  id uuid [pk]
+  inspection_plan_id uuid [not null]
+  sequence integer [not null]
+  characteristic_code varchar(100) [not null]
+  name varchar(200) [not null]
+  data_type varchar(40) [not null]
+  measurement_unit varchar(40)
+  lower_limit decimal(18,6)
+  upper_limit decimal(18,6)
+  required boolean [not null, default: true]
+  ai_supported boolean [not null, default: false]
+
+  indexes {
+    (inspection_plan_id, sequence) [unique]
+  }
+}
+
+Table inspection_records {
+  id uuid [pk]
+  plant_id uuid [not null]
+  inspection_plan_id uuid [not null]
+  unit_id uuid [not null]
+  unit_operation_id uuid
+  ai_human_review_id uuid
+  result inspection_result [not null, default: "PENDING"]
+  inspector_user_id uuid
+  started_at timestamptz
+  completed_at timestamptz
+  notes text
+  version integer [not null, default: 1]
+  created_at timestamptz [not null]
+
+  indexes {
+    (unit_id, created_at)
+    (result, created_at)
+  }
+}
+
+Table measurement_results {
+  id uuid [pk]
+  inspection_record_id uuid [not null]
+  inspection_plan_item_id uuid [not null]
+  numeric_value decimal(18,6)
+  text_value text
+  boolean_value boolean
+  result inspection_result [not null]
+  measured_at timestamptz [not null]
+
+  indexes {
+    (inspection_record_id, inspection_plan_item_id) [unique]
+  }
+}
+
+Table non_conformances {
+  id uuid [pk]
+  plant_id uuid [not null]
+  ncr_no varchar(100) [not null]
+  unit_id uuid
+  unit_operation_id uuid
+  inspection_record_id uuid
+  material_lot_id uuid
+  defect_code varchar(100) [not null]
+  severity severity [not null]
+  status non_conformance_status [not null, default: "OPEN"]
+  description text [not null]
+  disposition disposition_type
+  disposition_notes text
+  reported_by_user_id uuid [not null]
+  dispositioned_by_user_id uuid
+  reported_at timestamptz [not null]
+  dispositioned_at timestamptz
+  closed_at timestamptz
+
+  indexes {
+    (plant_id, ncr_no) [unique]
+    (unit_id, status)
+  }
+}
+
+Table capa_actions {
+  id uuid [pk]
+  non_conformance_id uuid [not null]
+  action_type varchar(40) [not null]
+  description text [not null]
+  owner_user_id uuid [not null]
+  due_at timestamptz [not null]
+  completed_at timestamptz
+  verified_by_user_id uuid
+  verified_at timestamptz
+  status varchar(40) [not null]
+  created_at timestamptz [not null]
+}
+
+Table attachments {
+  id uuid [pk]
+  organization_id uuid [not null]
+  owner_type varchar(80) [not null]
+  owner_id uuid [not null]
+  object_key text [not null, unique]
+  original_file_name text [not null]
+  content_type varchar(150) [not null]
+  byte_size bigint [not null]
+  checksum_sha256 varchar(64) [not null]
+  uploaded_by_user_id uuid [not null]
+  created_at timestamptz [not null]
+
+  indexes {
+    (owner_type, owner_id)
+    checksum_sha256
+  }
+}
+
+Table ai_inspection_jobs {
+  id uuid [pk]
+  plant_id uuid [not null]
+  unit_id uuid [not null]
+  unit_operation_id uuid
+  inspection_plan_item_id uuid
+  input_attachment_id uuid [not null]
+  status ai_job_status [not null, default: "PENDING"]
+  deterministic_key varchar(200) [not null, unique]
+  attempt_count integer [not null, default: 0]
+  requested_by_user_id uuid [not null]
+  requested_at timestamptz [not null]
+  started_at timestamptz
+  completed_at timestamptz
+  last_error text
+
+  indexes {
+    (plant_id, status, requested_at)
+    (unit_id, requested_at)
+  }
+}
+
+Table ai_inference_runs {
+  id uuid [pk]
+  ai_inspection_job_id uuid [not null]
+  provider varchar(80) [not null]
+  model varchar(120) [not null]
+  prompt_version varchar(50) [not null]
+  schema_version varchar(50) [not null]
+  provider_response_id varchar(200)
+  recommendation ai_recommendation [not null]
+  model_confidence decimal(7,6)
+  normalized_output jsonb [not null]
+  input_tokens integer
+  output_tokens integer
+  estimated_cost decimal(14,6)
+  latency_ms integer [not null]
+  created_at timestamptz [not null]
+
+  indexes {
+    (ai_inspection_job_id, created_at)
+    (model, prompt_version, created_at)
+  }
+}
+
+Table ai_human_reviews {
+  id uuid [pk]
+  ai_inference_run_id uuid [not null, unique]
+  reviewer_user_id uuid [not null]
+  decision inspection_result [not null]
+  recommendation_accepted boolean [not null]
+  notes text
+  reviewed_at timestamptz [not null]
+}
+
+Table audit_logs {
+  id uuid [pk]
+  organization_id uuid [not null]
+  plant_id uuid
+  actor_user_id uuid
+  actor_type varchar(40) [not null]
+  action varchar(120) [not null]
+  entity_type varchar(100) [not null]
+  entity_id uuid [not null]
+  before_data jsonb
+  after_data jsonb
+  reason text
+  ip_address inet
+  user_agent text
+  correlation_id uuid [not null]
+  occurred_at timestamptz [not null]
+
+  indexes {
+    (entity_type, entity_id, occurred_at)
+    (actor_user_id, occurred_at)
+    (plant_id, occurred_at)
+  }
+}
+
+Table outbox_events {
+  id uuid [pk]
+  organization_id uuid [not null]
+  plant_id uuid
+  aggregate_type varchar(100) [not null]
+  aggregate_id uuid [not null]
+  aggregate_version integer [not null]
+  event_type varchar(150) [not null]
+  event_version integer [not null]
+  payload jsonb [not null]
+  status outbox_status [not null, default: "PENDING"]
+  attempt_count integer [not null, default: 0]
+  available_at timestamptz [not null]
+  occurred_at timestamptz [not null]
+  locked_at timestamptz
+  locked_by varchar(150)
+  published_at timestamptz
+  last_error text
+  correlation_id uuid [not null]
+  causation_id uuid
+  idempotency_key varchar(200) [not null, unique]
+
+  indexes {
+    (status, available_at)
+    (aggregate_type, aggregate_id, aggregate_version)
+    occurred_at
+  }
+}
+
+Table inbound_messages {
+  id uuid [pk]
+  organization_id uuid [not null]
+  plant_id uuid
+  source varchar(80) [not null]
+  external_message_id varchar(200) [not null]
+  message_type varchar(150) [not null]
+  message_version integer [not null]
+  payload jsonb [not null]
+  status varchar(40) [not null]
+  received_at timestamptz [not null]
+  processed_at timestamptz
+  last_error text
+
+  indexes {
+    (source, external_message_id) [unique]
+    (status, received_at)
+  }
+}
+
+Table telemetry_metric_definitions {
+  id uuid [pk]
+  equipment_id uuid [not null]
+  metric_code varchar(120) [not null]
+  name varchar(200) [not null]
+  value_type varchar(30) [not null]
+  measurement_unit varchar(40)
+  lower_limit decimal(18,6)
+  upper_limit decimal(18,6)
+  is_active boolean [not null, default: true]
+
+  indexes {
+    (equipment_id, metric_code) [unique]
+  }
+}
+
+Table telemetry_events {
+  occurred_at timestamptz [not null]
+  id uuid [not null]
+  plant_id uuid [not null]
+  equipment_id uuid [not null]
+  metric_definition_id uuid
+  metric_code varchar(120) [not null]
+  numeric_value decimal(20,8)
+  text_value text
+  measurement_unit varchar(40)
+  quality_code varchar(40)
+  source_message_id varchar(200) [not null]
+  payload jsonb
+  ingested_at timestamptz [not null]
+
+  indexes {
+    (occurred_at, id) [pk]
+    (equipment_id, source_message_id, occurred_at) [unique]
+    (equipment_id, metric_code, occurred_at)
+    (plant_id, occurred_at)
+  }
+
+  Note: "TimescaleDB hypertable partitioned by occurred_at. Raw telemetry retention applies."
+}
+
+Table equipment_state_events {
+  occurred_at timestamptz [not null]
+  id uuid [not null]
+  plant_id uuid [not null]
+  equipment_id uuid [not null]
+  state varchar(50) [not null]
+  reason_code varchar(80)
+  source_message_id varchar(200) [not null]
+  work_order_id uuid
+  unit_id uuid
+  payload jsonb
+  ingested_at timestamptz [not null]
+
+  indexes {
+    (occurred_at, id) [pk]
+    (equipment_id, source_message_id, occurred_at) [unique]
+    (equipment_id, occurred_at)
+  }
+
+  Note: "TimescaleDB hypertable used for runtime, idle, planned stop, unplanned stop, and fault states."
+}
+
+Ref: plants.organization_id > organizations.id
+Ref: areas.plant_id > plants.id
+Ref: production_lines.area_id > areas.id
+Ref: work_centers.production_line_id > production_lines.id
+Ref: equipment.work_center_id > work_centers.id
+Ref: shift_definitions.plant_id > plants.id
+Ref: work_calendar_days.plant_id > plants.id
+Ref: work_calendar_days.shift_definition_id > shift_definitions.id
+
+Ref: roles.organization_id > organizations.id
+Ref: role_permissions.role_id > roles.id
+Ref: role_permissions.permission_id > permissions.id
+Ref: user_plant_roles.user_id > users.id
+Ref: user_plant_roles.plant_id > plants.id
+Ref: user_plant_roles.role_id > roles.id
+
+Ref: customers.organization_id > organizations.id
+Ref: products.organization_id > organizations.id
+Ref: product_revisions.product_id > products.id
+Ref: product_revisions.published_by_user_id > users.id
+Ref: materials.organization_id > organizations.id
+Ref: bom_revisions.product_revision_id > product_revisions.id
+Ref: bom_revisions.published_by_user_id > users.id
+Ref: bom_items.bom_revision_id > bom_revisions.id
+Ref: bom_items.material_id > materials.id
+Ref: operation_definitions.organization_id > organizations.id
+Ref: routing_revisions.product_revision_id > product_revisions.id
+Ref: routing_revisions.published_by_user_id > users.id
+Ref: routing_operations.routing_revision_id > routing_revisions.id
+Ref: routing_operations.operation_definition_id > operation_definitions.id
+Ref: routing_operations.default_work_center_id > work_centers.id
+Ref: routing_operation_predecessors.routing_operation_id > routing_operations.id
+Ref: routing_operation_predecessors.predecessor_operation_id > routing_operations.id
+
+Ref: sales_orders.organization_id > organizations.id
+Ref: sales_orders.customer_id > customers.id
+Ref: sales_order_lines.sales_order_id > sales_orders.id
+Ref: sales_order_lines.product_revision_id > product_revisions.id
+Ref: work_orders.plant_id > plants.id
+Ref: work_orders.sales_order_line_id > sales_order_lines.id
+Ref: work_orders.product_revision_id > product_revisions.id
+Ref: work_orders.bom_revision_id > bom_revisions.id
+Ref: work_orders.routing_revision_id > routing_revisions.id
+Ref: work_orders.created_by_user_id > users.id
+Ref: work_orders.released_by_user_id > users.id
+Ref: work_order_operations.work_order_id > work_orders.id
+Ref: work_order_operations.routing_operation_id > routing_operations.id
+Ref: work_order_operations.work_center_id > work_centers.id
+Ref: units.work_order_id > work_orders.id
+Ref: unit_operations.unit_id > units.id
+Ref: unit_operations.work_order_operation_id > work_order_operations.id
+Ref: unit_operations.rework_of_operation_id > unit_operations.id
+Ref: unit_operations.assigned_equipment_id > equipment.id
+Ref: unit_operations.started_by_user_id > users.id
+Ref: unit_operations.completed_by_user_id > users.id
+Ref: production_events.plant_id > plants.id
+Ref: production_events.work_order_id > work_orders.id
+Ref: production_events.unit_id > units.id
+Ref: production_events.unit_operation_id > unit_operations.id
+Ref: production_events.actor_user_id > users.id
+
+Ref: warehouses.plant_id > plants.id
+Ref: storage_locations.warehouse_id > warehouses.id
+Ref: material_lots.material_id > materials.id
+Ref: material_lots.plant_id > plants.id
+Ref: inventory_transactions.plant_id > plants.id
+Ref: inventory_transactions.material_id > materials.id
+Ref: inventory_transactions.material_lot_id > material_lots.id
+Ref: inventory_transactions.storage_location_id > storage_locations.id
+Ref: inventory_transactions.work_order_id > work_orders.id
+Ref: inventory_transactions.unit_id > units.id
+Ref: inventory_transactions.actor_user_id > users.id
+Ref: material_reservations.work_order_id > work_orders.id
+Ref: material_reservations.material_id > materials.id
+Ref: material_reservations.material_lot_id > material_lots.id
+Ref: material_reservations.storage_location_id > storage_locations.id
+Ref: material_consumptions.inventory_transaction_id > inventory_transactions.id
+Ref: material_consumptions.work_order_id > work_orders.id
+Ref: material_consumptions.unit_id > units.id
+Ref: material_consumptions.unit_operation_id > unit_operations.id
+Ref: material_consumptions.material_id > materials.id
+Ref: material_consumptions.material_lot_id > material_lots.id
+Ref: material_consumptions.consumed_by_user_id > users.id
+
+Ref: inspection_plans.organization_id > organizations.id
+Ref: inspection_plans.product_revision_id > product_revisions.id
+Ref: inspection_plans.routing_operation_id > routing_operations.id
+Ref: inspection_plans.published_by_user_id > users.id
+Ref: inspection_plan_items.inspection_plan_id > inspection_plans.id
+Ref: inspection_records.plant_id > plants.id
+Ref: inspection_records.inspection_plan_id > inspection_plans.id
+Ref: inspection_records.unit_id > units.id
+Ref: inspection_records.unit_operation_id > unit_operations.id
+Ref: inspection_records.ai_human_review_id - ai_human_reviews.id
+Ref: inspection_records.inspector_user_id > users.id
+Ref: measurement_results.inspection_record_id > inspection_records.id
+Ref: measurement_results.inspection_plan_item_id > inspection_plan_items.id
+Ref: non_conformances.plant_id > plants.id
+Ref: non_conformances.unit_id > units.id
+Ref: non_conformances.unit_operation_id > unit_operations.id
+Ref: non_conformances.inspection_record_id > inspection_records.id
+Ref: non_conformances.material_lot_id > material_lots.id
+Ref: non_conformances.reported_by_user_id > users.id
+Ref: non_conformances.dispositioned_by_user_id > users.id
+Ref: capa_actions.non_conformance_id > non_conformances.id
+Ref: capa_actions.owner_user_id > users.id
+Ref: capa_actions.verified_by_user_id > users.id
+
+Ref: attachments.organization_id > organizations.id
+Ref: attachments.uploaded_by_user_id > users.id
+Ref: ai_inspection_jobs.plant_id > plants.id
+Ref: ai_inspection_jobs.unit_id > units.id
+Ref: ai_inspection_jobs.unit_operation_id > unit_operations.id
+Ref: ai_inspection_jobs.inspection_plan_item_id > inspection_plan_items.id
+Ref: ai_inspection_jobs.input_attachment_id > attachments.id
+Ref: ai_inspection_jobs.requested_by_user_id > users.id
+Ref: ai_inference_runs.ai_inspection_job_id > ai_inspection_jobs.id
+Ref: ai_human_reviews.ai_inference_run_id > ai_inference_runs.id
+Ref: ai_human_reviews.reviewer_user_id > users.id
+
+Ref: audit_logs.organization_id > organizations.id
+Ref: audit_logs.plant_id > plants.id
+Ref: audit_logs.actor_user_id > users.id
+Ref: outbox_events.organization_id > organizations.id
+Ref: outbox_events.plant_id > plants.id
+Ref: inbound_messages.organization_id > organizations.id
+Ref: inbound_messages.plant_id > plants.id
+
+Ref: telemetry_metric_definitions.equipment_id > equipment.id
+Ref: telemetry_events.plant_id > plants.id
+Ref: telemetry_events.equipment_id > equipment.id
+Ref: telemetry_events.metric_definition_id > telemetry_metric_definitions.id
+Ref: equipment_state_events.plant_id > plants.id
+Ref: equipment_state_events.equipment_id > equipment.id
+Ref: equipment_state_events.work_order_id > work_orders.id
+Ref: equipment_state_events.unit_id > units.id
