@@ -1,10 +1,16 @@
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { AppModule } from './app.module';
+import type { ApiEnvironment } from './config/api-environment.schema';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService =
+    app.get<ConfigService<ApiEnvironment, true>>(ConfigService);
+  const logger = new Logger('Bootstrap');
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -12,7 +18,12 @@ async function bootstrap() {
       transform: true,
     }),
   );
-  const allowedOrigins = (process.env.WEB_URL ?? 'http://localhost:3001')
+
+  const webUrl = configService.get('WEB_URL', {
+    infer: true,
+  });
+
+  const allowedOrigins = webUrl
     .split(',')
     .map((origin) => origin.trim())
     .filter(Boolean);
@@ -24,20 +35,30 @@ async function bootstrap() {
     origin: allowedOrigins,
   });
 
-  if (process.env.ENABLE_SWAGGER !== 'false') {
-    const config = new DocumentBuilder()
+  const enableSwagger = configService.get('ENABLE_SWAGGER', {
+    infer: true,
+  });
+
+  if (enableSwagger) {
+    const swaggerConfig = new DocumentBuilder()
       .setTitle('API Docs')
       .setDescription('NestJS API documentation')
       .setVersion('1.0')
       .addBearerAuth()
       .build();
-    const document = SwaggerModule.createDocument(app, config);
+
+    const document = SwaggerModule.createDocument(app, swaggerConfig);
+
     SwaggerModule.setup('api/docs', app, document);
   }
 
-  const port = process.env.PORT ?? 3000;
+  const port = configService.get('PORT', {
+    infer: true,
+  });
+
   await app.listen(port, '0.0.0.0');
 
-  console.log(`API running at http://localhost:${port}/api`);
+  logger.log(`API running at http://localhost:${port}/api`);
 }
-bootstrap();
+
+void bootstrap();

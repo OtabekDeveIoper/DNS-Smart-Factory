@@ -13,11 +13,14 @@ import { InventoryModule } from './modules/inventory/inventory.module';
 import { QualityModule } from './modules/quality/quality.module';
 import { RequestIdMiddleware } from './libs/http/request-id.middleware';
 import { ApiExceptionFilter } from './libs/http/api-exception.filter';
+import { validateApiEnvironment } from './config/validate-api-environment';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      cache: true,
+      validate: validateApiEnvironment,
     }),
     DatabaseModule,
     HealthModule,
@@ -36,6 +39,6 @@ import { ApiExceptionFilter } from './libs/http/api-exception.filter';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(RequestIdMiddleware).forRoutes('*');
+    consumer.apply(RequestIdMiddleware).forRoutes('{*path}');
   }
 }
