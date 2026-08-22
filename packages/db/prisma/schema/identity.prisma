@@ -1,19 +1,41 @@
 model User {
-  id           String     @id @default(uuid()) @db.Uuid
-  email        String     @unique @db.VarChar(320)
-  passwordHash String?    @db.Text
-  displayName  String     @db.VarChar(150)
-  employeeNo   String?    @db.VarChar(80)
-  status       UserStatus @default(INVITED)
-  locale       String     @default("ko") @db.VarChar(10)
-  lastLoginAt  DateTime?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  id                   String     @id @default(uuid()) @db.Uuid
+  email                String     @unique @db.VarChar(320)
+  passwordHash         String?    @db.Text
+  displayName          String     @db.VarChar(150)
+  employeeNo           String?    @db.VarChar(80)
+  status               UserStatus @default(INVITED)
+  locale               String     @default("ko") @db.VarChar(10)
+  authorizationVersion Int        @default(1)
+  lastLoginAt          DateTime?
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
 
-  plantRoles  UserPlantRole[]
-  systemRoles UserSystemRole[]
+  plantRoles   UserPlantRole[]
+  systemRoles  UserSystemRole[]
+  authSessions AuthSession[]
 
   @@index([status])
+}
+
+model AuthSession {
+  id               String    @id @default(uuid()) @db.Uuid
+  userId           String    @db.Uuid
+  familyId         String    @default(uuid()) @db.Uuid
+  refreshTokenHash String    @unique @db.Char(64)
+  userAgent        String?   @db.VarChar(500)
+  ipAddress        String?   @db.Inet
+  expiresAt        DateTime
+  lastUsedAt       DateTime?
+  revokedAt        DateTime?
+  revocationReason String?   @db.VarChar(200)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([userId, revokedAt, expiresAt])
+  @@index([familyId])
 }
 
 model Role {
