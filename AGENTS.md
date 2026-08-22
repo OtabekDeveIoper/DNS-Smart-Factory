@@ -15,3 +15,4 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Work in small, coherent vertical slices. Do not move to the next slice until the current slice has been reviewed and its relevant build, test, or smoke checks pass.
 - After each verified, logically complete slice, explicitly announce a **commit checkpoint**. Inspect `git status` and the relevant diff, identify exactly which files belong to the commit, and provide an appropriate Conventional Commit message.
 - Never recommend committing known broken or unverified work. Warn the user before starting the next slice when the current work should be committed first.
+- At API boundaries, define request and response contracts as dedicated DTO classes. Request DTOs must use runtime validation decorators where input exists; response DTOs must define the documented response shape. Keep internal application/service commands as interfaces or types when runtime transport validation is not needed.
