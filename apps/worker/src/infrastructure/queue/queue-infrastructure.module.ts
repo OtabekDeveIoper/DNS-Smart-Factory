@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { BullModule } from "@nestjs/bullmq";
 import type { WorkerEnvironment } from "../../config/worker-environment.schema";
+import { QUEUE_KEY_PREFIX } from "@dns-smart-factory/contracts";
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import type { WorkerEnvironment } from "../../config/worker-environment.schema";
           port: configService.get("REDIS_PORT", { infer: true }),
           maxRetriesPerRequest: null,
         },
-        prefix: "dns-smart-factory",
+        prefix: QUEUE_KEY_PREFIX,
       }),
     }),
   ],

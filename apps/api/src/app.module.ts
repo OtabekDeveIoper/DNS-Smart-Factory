@@ -14,6 +14,8 @@ import { QualityModule } from './modules/quality/quality.module';
 import { RequestIdMiddleware } from './libs/http/request-id.middleware';
 import { ApiExceptionFilter } from './libs/http/api-exception.filter';
 import { validateApiEnvironment } from './config/validate-api-environment';
+import { QueueInfrastructureModule } from './infrastructure/queue/queue-infrastructure.module';
+import { SystemJobsModule } from './modules/system-jobs/system-jobs.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { validateApiEnvironment } from './config/validate-api-environment';
       cache: true,
       validate: validateApiEnvironment,
     }),
+    QueueInfrastructureModule,
+    SystemJobsModule,
     DatabaseModule,
     HealthModule,
     DashboardModule,
