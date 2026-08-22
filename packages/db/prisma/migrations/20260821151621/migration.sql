@@ -102,7 +102,3 @@ ALTER TABLE "user_plant_roles" ADD CONSTRAINT "user_plant_roles_plant_id_fkey" F
 
 -- AddForeignKey
 ALTER TABLE "user_plant_roles" ADD CONSTRAINT "user_plant_roles_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "roles"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
-CREATE UNIQUE INDEX "roles_system_code_key"
-ON "roles" ("code")
-WHERE "organization_id" IS NULL;

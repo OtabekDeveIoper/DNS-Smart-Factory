@@ -3,106 +3,104 @@ model Organization {
   code      String   @db.VarChar(50)
   name      String   @db.VarChar(200)
   timezone  String   @default("Asia/Seoul") @db.VarChar(50)
-  isActive  Boolean  @default(true) @map("is_active")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  plants Plant[]
-  roles Role[]
+  plants    Plant[]
+  roles     Role[]
+  customers Customer[]
+  materials Material[]
 
   @@unique([code])
-  @@map("organizations")
 }
 
 model Plant {
   id             String   @id @default(uuid()) @db.Uuid
-  organizationId String   @map("organization_id") @db.Uuid
+  organizationId String   @db.Uuid
   code           String   @db.VarChar(50)
   name           String   @db.VarChar(200)
   timezone       String   @default("Asia/Seoul") @db.VarChar(50)
   address        String?  @db.Text
-  isActive       Boolean  @default(true) @map("is_active")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  organization Organization @relation(fields: [organizationId], references: [id])
-  areas        Area[]
+  organization   Organization    @relation(fields: [organizationId], references: [id])
+  areas          Area[]
   userPlantRoles UserPlantRole[]
+  orders         Order[]
+  inventoryLots  InventoryLot[]
 
   @@unique([organizationId, code])
   @@index([organizationId])
-  @@map("plants")
 }
 
 model Area {
   id        String   @id @default(uuid()) @db.Uuid
-  plantId   String   @map("plant_id") @db.Uuid
+  plantId   String   @db.Uuid
   code      String   @db.VarChar(50)
   name      String   @db.VarChar(200)
-  isActive  Boolean  @default(true) @map("is_active")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   plant           Plant            @relation(fields: [plantId], references: [id])
   productionLines ProductionLine[]
 
   @@unique([plantId, code])
   @@index([plantId])
-  @@map("areas")
 }
 
 model ProductionLine {
   id        String   @id @default(uuid()) @db.Uuid
-  areaId    String   @map("area_id") @db.Uuid
+  areaId    String   @db.Uuid
   code      String   @db.VarChar(50)
   name      String   @db.VarChar(200)
-  isActive  Boolean  @default(true) @map("is_active")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   area        Area         @relation(fields: [areaId], references: [id])
   workCenters WorkCenter[]
 
   @@unique([areaId, code])
   @@index([areaId])
-  @@map("production_lines")
 }
 
 model WorkCenter {
   id               String   @id @default(uuid()) @db.Uuid
-  productionLineId String   @map("production_line_id") @db.Uuid
+  productionLineId String   @db.Uuid
   code             String   @db.VarChar(50)
   name             String   @db.VarChar(200)
   capacity         Decimal  @default(1) @db.Decimal(12, 3)
-  capacityUnit     String   @default("UNIT") @map("capacity_unit") @db.VarChar(30)
-  isActive         Boolean  @default(true) @map("is_active")
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
+  capacityUnit     String   @default("UNIT") @db.VarChar(30)
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   productionLine ProductionLine @relation(fields: [productionLineId], references: [id])
   equipment      Equipment[]
 
   @@unique([productionLineId, code])
   @@index([productionLineId])
-  @@map("work_centers")
 }
 
 model Equipment {
-  id           String          @id @default(uuid()) @db.Uuid
-  workCenterId String          @map("work_center_id") @db.Uuid
-  code         String          @db.VarChar(80)
-  name         String          @db.VarChar(200)
-  equipmentType String         @map("equipment_type") @db.VarChar(80)
-  status       EquipmentStatus @default(ACTIVE)
-  mqttNodeId   String?         @map("mqtt_node_id") @db.VarChar(200)
-  metadata     Json?
-  createdAt    DateTime        @default(now()) @map("created_at")
-  updatedAt    DateTime        @updatedAt @map("updated_at")
+  id            String          @id @default(uuid()) @db.Uuid
+  workCenterId  String          @db.Uuid
+  code          String          @db.VarChar(80)
+  name          String          @db.VarChar(200)
+  equipmentType String          @db.VarChar(80)
+  status        EquipmentStatus @default(ACTIVE)
+  mqttNodeId    String?         @db.VarChar(200)
+  metadata      Json?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
 
   workCenter WorkCenter @relation(fields: [workCenterId], references: [id])
 
   @@unique([workCenterId, code])
   @@index([workCenterId])
   @@index([mqttNodeId])
-  @@map("equipment")
 }

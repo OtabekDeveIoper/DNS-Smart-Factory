@@ -6,6 +6,10 @@ import { seedOrders } from "./seeds/orders.seed";
 import { seedOperations } from "./seeds/operations.seed";
 import { seedQuality } from "./seeds/quality.seed";
 import { seedTraceability } from "./seeds/traceability.seed";
+import {
+  backfillV2Ownership,
+  seedV2Foundation,
+} from "./seeds/v2-foundation.seed";
 
 const connectionString = process.env.DATABASE_URL;
 
@@ -17,6 +21,9 @@ const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
+  console.log("Seeding V2 organization and RBAC foundation...");
+  const v2Foundation = await seedV2Foundation(prisma);
+
   console.log("Seeding master data...");
   await seedMasterData(prisma);
 
@@ -31,6 +38,9 @@ async function main() {
 
   console.log("Seeding material usage and events...");
   await seedTraceability(prisma);
+
+  console.log("Backfilling V2 ownership links...");
+  await backfillV2Ownership(prisma, v2Foundation);
 
   console.log("Master data seeded successfully");
 }

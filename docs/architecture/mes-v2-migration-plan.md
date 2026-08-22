@@ -14,18 +14,18 @@ Destructive schema reset is not a production migration strategy.
 
 | Current model | V2 destination | Migration note |
 |---|---|---|
-| `Customer` | `customers` | Add organization ownership and preserve external code |
-| `Order` | `sales_orders`, `sales_order_lines`, `work_orders` | Split commercial demand from manufacturing execution |
-| `Unit` | `units` | Reattach to work order and preserve serial number |
-| `ProcessStep` | `operation_definitions`, `routing_operations` | Global step becomes reusable definition plus revision-specific operation |
-| `ProcessRecord` | `work_order_operations`, `unit_operations`, `production_events` | Preserve execution history and derive immutable events |
-| `Material` | `materials` | Add organization ownership and control attributes |
-| `BomItem` | `bom_revisions`, `bom_items` | Replace order-specific BOM with product-revision BOM |
-| `InventoryLot` | `material_lots`, `inventory_transactions` | Create opening-balance ledger transactions |
-| `MaterialUsage` | `material_consumptions`, `inventory_transactions` | Preserve lot-to-unit genealogy |
-| `Inspection` | `inspection_plans`, `inspection_records`, AI tables | Separate plan, execution, AI suggestion, and final review |
-| `TestRecord` | inspection plan items and measurement results | Preserve measured values, limits, equipment, and certificate references |
-| `Event` | `production_events`, `audit_logs`, `outbox_events` | Classify historical facts separately from delivery events |
+| `Customer` | `Customer` | Add organization ownership and preserve external code |
+| `Order` | `SalesOrder`, `SalesOrderLine`, `WorkOrder` | Split commercial demand from manufacturing execution |
+| `Unit` | V2 `Unit` | Reattach to work order and preserve serial number |
+| `ProcessStep` | `OperationDefinition`, `RoutingOperation` | Global step becomes reusable definition plus revision-specific operation |
+| `ProcessRecord` | `WorkOrderOperation`, `UnitOperation`, `ProductionEvent` | Preserve execution history and derive immutable events |
+| `Material` | V2 `Material` | Add organization ownership and control attributes |
+| `BomItem` | `BomRevision`, V2 `BomItem` | Replace order-specific BOM with product-revision BOM |
+| `InventoryLot` | `MaterialLot`, `InventoryTransaction` | Create opening-balance ledger transactions |
+| `MaterialUsage` | `MaterialConsumption`, `InventoryTransaction` | Preserve lot-to-unit genealogy |
+| `Inspection` | `InspectionPlan`, `InspectionRecord`, AI models | Separate plan, execution, AI suggestion, and final review |
+| `TestRecord` | `InspectionPlanItem`, `MeasurementResult` | Preserve measured values, limits, equipment, and certificate references |
+| `Event` | `ProductionEvent`, `AuditLog`, `OutboxEvent` | Classify historical facts separately from delivery events |
 
 ## Migration Principles
 
@@ -70,6 +70,19 @@ Add:
 - audit logs.
 
 Backfill one default organization and plant for current demonstration data.
+
+During the compatibility window, nullable ownership bridges connect legacy
+aggregate roots to the V2 foundation:
+
+- `Customer.organizationId` and `Material.organizationId` reference
+  `Organization`;
+- `Order.plantId` and `InventoryLot.plantId` reference `Plant`.
+
+All V2 physical table names use PascalCase and columns use camelCase, matching
+the existing Prisma schema convention. The naming migration uses atomic
+PostgreSQL renames and does not copy or recreate business data. Rolling back to
+an application that expects the previous physical names requires applying the
+inverse rename migration before deploying that application.
 
 Current APIs continue to operate. New ownership fields remain nullable until
 the backfill and application compatibility checks pass.

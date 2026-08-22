@@ -7,8 +7,9 @@ Smart Factory MES.
 
 Authorization follows deny-by-default and least-privilege principles.
 
-Roles are assigned per plant through `UserPlantRole`. A user can have multiple
-roles and different roles in different plants.
+Platform roles are assigned through `UserSystemRole`. Organization and plant
+operations use `UserPlantRole`, allowing a user to have multiple roles and
+different roles in different plants.
 
 ## Scope Hierarchy
 
@@ -18,8 +19,13 @@ System → Organization → Plant → Production Line → Work Center
 
 A permission grant never automatically expands beyond its assigned scope.
 
-Every query and command must apply the user's organization and plant scope
-before accessing business data.
+`UserSystemRole` is reserved for platform-scoped roles whose
+`Role.organizationId` is null. Plant assignments must reference an
+organization-owned role and always include a plant.
+
+Every business query and command must apply the user's organization and plant
+scope before accessing domain data. Platform operations require a valid active
+system-role assignment instead.
 
 ## Permission Levels
 
